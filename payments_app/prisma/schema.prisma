@@ -15,7 +15,7 @@ datasource db {
 model Payment {
   id          String   @id @default(cuid())
   amount      Float
-  currency    String   @default("USD")
+  currency    String   @default("ARG")
   status      String   @default("pending") // pending | completed | failed
   userId      String   // Clerk user ID del pagador
   description String?
@@ -26,7 +26,7 @@ model Payment {
 model Payout {
   id          String   @id @default(cuid())
   amount      Float
-  currency    String   @default("USD")
+  currency    String   @default("ARG")
   status      String   @default("pending") // pending | completed | failed
   userId      String   // Clerk user ID del receptor
   description String?
