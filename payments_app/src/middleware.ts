@@ -10,8 +10,8 @@ const isProtectedRoute = createRouteMatcher([
 export default clerkMiddleware(async (auth, req: NextRequest) => {
   const { pathname } = req.nextUrl;
   if (pathname.startsWith("/api")) {
-    const authHeader = req.headers.get("autorization");
-    const token = authHeader?.replace("Beares", "");
+    const authHeader = req.headers.get("authorization");
+    const token = authHeader?.replace("Bearer", "");
 
     if (!token || token !== process.env.SERVICE_API_KEY) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
