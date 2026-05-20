@@ -1,9 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { PaymentCard } from "@/components/ui/PaymentCard";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { PaymentList } from "@/components/ui/PaymentsList";
 import { redirect } from "next/navigation";
+import { PaymentStatus } from "@/components/ui/PaymentsList";
 
 export default async function BuyerPaymentsPage() {
   const { userId } = await auth();
@@ -15,36 +15,26 @@ export default async function BuyerPaymentsPage() {
     orderBy: { createdAt: "desc" },
   });
 
+  function isPaymentStatus(value: string): value is PaymentStatus {
+    return ["pending", "approved", "rejected"].includes(value);
+  }
+
+  const serialized = payments.map((p) => ({
+    ...p,
+    createdAt: p.createdAt.toISOString(),
+    status: isPaymentStatus(p.status) ? p.status : "pending",
+  }));
   return (
     <main className="max-w-2xl mx-auto px-4 py-10">
       <PageHeader
         title="Mis pagos"
         subtitle={
-          payments.length > 0
-            ? `${payments.length} pago${payments.length !== 1 ? "s" : ""} registrado${payments.length !== 1 ? "s" : ""}`
+          serialized.length > 0
+            ? `${serialized.length} pago${serialized.length !== 1 ? "s" : ""} registrado${serialized.length !== 1 ? "s" : ""}`
             : undefined
         }
       />
-
-      {payments.length === 0 ? (
-        <EmptyState
-          title="No tenés pagos registrados"
-          description="Tus pagos aparecerán acá una vez que realices una compra."
-        />
-      ) : (
-        <div className="flex flex-col gap-3">
-          {payments.map((payment) => (
-            <PaymentCard
-              key={payment.id}
-              paymentId={payment.id}
-              orderId={payment.order_id}
-              amount={{ value: payment.amount, currency: payment.currency }}
-              status={payment.status as "pending" | "approved" | "rejected"}
-              createdAt={payment.createdAt.toISOString()}
-            />
-          ))}
-        </div>
-      )}
+      <PaymentList payments={serialized} />
     </main>
   );
 }
