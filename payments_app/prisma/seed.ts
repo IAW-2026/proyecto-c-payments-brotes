@@ -4,28 +4,53 @@ import * as dotenv from "dotenv";
 
 dotenv.config({ path: ".env.local" });
 
-const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! });
+const adapter = new PrismaNeon({
+  connectionString: process.env.DATABASE_URL!,
+});
+
 const prisma = new PrismaClient({ adapter });
 
-const BUYER_ID = "user_3Dv1ps1sKzwvsFhcto5WdgOgBMb"; // ← reemplazá esto
+const BUYER_ID = "user_3Dv1ps1sKzwvsFhcto5WdgOgBMb";
 const SELLER_ID = "seller_test_001";
 
 async function main() {
-  console.log("🌱 Seeding payments...");
+  console.log("🌿 Seeding plant marketplace payments...");
 
   // Limpiar datos previos del buyer de prueba
-  await prisma.payment.deleteMany({ where: { buyer_id: BUYER_ID } });
+  // Buscar payments previos
+  const existingPayments = await prisma.payment.findMany({
+    where: { buyer_id: BUYER_ID },
+    select: { id: true },
+  });
+
+  const paymentIds = existingPayments.map((p) => p.id);
+
+  // Borrar payouts relacionados
+  await prisma.payout.deleteMany({
+    where: {
+      payment_id: {
+        in: paymentIds,
+      },
+    },
+  });
+
+  // Borrar payments
+  await prisma.payment.deleteMany({
+    where: {
+      buyer_id: BUYER_ID,
+    },
+  });
 
   // Pago 1 — pending
   await prisma.payment.create({
     data: {
       order_id: "order_001",
-      amount: 15000,
+      amount: 18500,
       currency: "ARS",
       status: "pending",
       buyer_id: BUYER_ID,
       seller_id: SELLER_ID,
-      description: "Zapatillas Nike Air Max",
+      description: "Monstera Deliciosa mediana con maceta de cerámica",
     },
   });
 
@@ -33,25 +58,25 @@ async function main() {
   await prisma.payment.create({
     data: {
       order_id: "order_002",
-      amount: 8500,
+      amount: 7200,
       currency: "ARS",
       status: "pending",
       buyer_id: BUYER_ID,
       seller_id: SELLER_ID,
-      description: "Auriculares Sony WH-1000XM4",
+      description: "Kit de herramientas para jardinería indoor",
     },
   });
 
-  // Pago 3 — approved (con su Payout asociado)
+  // Pago 3 — approved (con payout pagado)
   const approvedPayment = await prisma.payment.create({
     data: {
       order_id: "order_003",
-      amount: 32000,
+      amount: 29500,
       currency: "ARS",
       status: "approved",
       buyer_id: BUYER_ID,
       seller_id: SELLER_ID,
-      description: "Tablet Samsung Galaxy Tab",
+      description: "Olivo joven premium para exterior",
     },
   });
 
@@ -69,12 +94,12 @@ async function main() {
   const approvedPayment2 = await prisma.payment.create({
     data: {
       order_id: "order_004",
-      amount: 5200,
+      amount: 9600,
       currency: "ARS",
       status: "approved",
       buyer_id: BUYER_ID,
       seller_id: SELLER_ID,
-      description: 'Funda para laptop 15"',
+      description: "Pack x3 cactus decorativos + sustrato mineral",
     },
   });
 
@@ -88,7 +113,35 @@ async function main() {
     },
   });
 
-  console.log("✅ Seed completo — 4 pagos creados (2 pending, 2 approved)");
+  // Pago 5 — rejected
+  await prisma.payment.create({
+    data: {
+      order_id: "order_005",
+      amount: 13400,
+      currency: "ARS",
+      status: "rejected",
+      buyer_id: BUYER_ID,
+      seller_id: SELLER_ID,
+      description: "Ficus Lyrata grande para living",
+    },
+  });
+
+  // Pago 6 — pending
+  await prisma.payment.create({
+    data: {
+      order_id: "order_006",
+      amount: 5400,
+      currency: "ARS",
+      status: "pending",
+      buyer_id: BUYER_ID,
+      seller_id: SELLER_ID,
+      description: "Fertilizante orgánico líquido para plantas de interior",
+    },
+  });
+
+  console.log(
+    "✅ Seed completo — 6 pagos creados (3 pending, 2 approved, 1 rejected)",
+  );
 }
 
 main()
