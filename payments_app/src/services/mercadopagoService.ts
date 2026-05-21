@@ -38,7 +38,7 @@ export async function createPreference({
         failure: `${process.env.NEXT_PUBLIC_APP_URL}/payments/${paymentId}?status=failure`,
         pending: `${process.env.NEXT_PUBLIC_APP_URL}/payments/${paymentId}?status=pending`,
       },
-      auto_return: "approved",
+      //auto_return: "approved",
       notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/mercadopago`,
       external_reference: paymentId,
     },

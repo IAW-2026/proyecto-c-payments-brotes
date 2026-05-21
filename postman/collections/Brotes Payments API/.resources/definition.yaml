@@ -12,3 +12,5 @@ auth:
     credentials:
       key: Authorization
       value: Bearer payments_secret_key_555222333
+    rules:
+      url: http://localhost:3000/*

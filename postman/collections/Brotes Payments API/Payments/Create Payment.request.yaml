@@ -1,10 +1,14 @@
 $kind: http-request
+name: Create Payment
 method: POST
-url: '{{baseUrl}}/api/payments'
+url: "{{baseUrl}}/api/payments"
+auth:
+  type: inherit
+  credentials:
+    id: 8248c099-d20b-4293-be5c-6d32ffa39c24
 order: 1000
 headers:
-  - key: Content-Type
-    value: application/json
+  Content-Type: application/json
 body:
   type: json
   content: |-
@@ -13,11 +17,11 @@ body:
       "buyer_id": "{{buyer_id}}",
       "seller_id": "{{seller_id}}",
       "amount": 1500,
-      "currency": "ARS"
+      "currency": "ARS",
+      "buyer_email": "test_user@test.com"
     }
 scripts:
   - type: afterResponse
-    language: text/javascript
     code: |-
       pm.test("Status code is 201", function () {
         pm.response.to.have.status(201);
@@ -35,3 +39,4 @@ scripts:
         const json = pm.response.json();
         pm.expect(json.amount.value).to.eql(1500);
       });
+    language: text/javascript
