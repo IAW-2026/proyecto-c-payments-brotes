@@ -1,0 +1,11 @@
+$kind: collection
+name: Brotes Payments API
+variables:
+  - key: order_id
+    value: 'order-001'
+  - key: buyer_id
+    value: 'buyer-001'
+  - key: seller_id
+    value: 'seller-001'
+  - key: payment_id
+    value: ''
