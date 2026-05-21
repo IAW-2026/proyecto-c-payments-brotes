@@ -18,7 +18,7 @@ export async function GET(
   const currency = payouts[0]?.currency ?? "ARS";
 
   return NextResponse.json({
-    seller_id: params.sellerId,
+    seller_id: sellerId,
     payouts: payouts.map((p) => ({
       payout_id: p.id,
       payment_id: p.payment_id,
