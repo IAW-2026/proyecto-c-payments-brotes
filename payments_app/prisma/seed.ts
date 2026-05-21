@@ -11,7 +11,7 @@ const adapter = new PrismaNeon({
 const prisma = new PrismaClient({ adapter });
 
 const BUYER_ID = "user_3Dv1ps1sKzwvsFhcto5WdgOgBMb";
-const SELLER_ID = "seller_test_001";
+const SELLER_ID = "user_3Dv1ps1sKzwvsFhcto5WdgOgBMb";
 
 async function main() {
   console.log("🌿 Seeding plant marketplace payments...");

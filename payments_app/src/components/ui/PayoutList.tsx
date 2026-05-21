@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { PayoutCard } from "@/components/ui/PayoutCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PayoutStatus } from "@/components/ui/StatusBadge";
@@ -18,6 +19,7 @@ interface PayoutListProps {
 }
 
 export function PayoutList({ payouts }: PayoutListProps) {
+  const router = useRouter();
   if (payouts.length === 0) {
     return (
       <EmptyState
@@ -37,6 +39,7 @@ export function PayoutList({ payouts }: PayoutListProps) {
           amount={{ value: payout.amount, currency: payout.currency }}
           status={payout.status}
           createdAt={payout.createdAt}
+          onClick={() => router.push(`/payouts/${payout.id}`)}
         />
       ))}
     </div>

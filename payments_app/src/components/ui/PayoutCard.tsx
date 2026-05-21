@@ -6,6 +6,7 @@ interface PayoutCardProps {
   amount: { value: number; currency: string };
   status: PayoutStatus;
   createdAt: string;
+  onClick?: () => void; // ← agregar
 }
 
 function formatAmount(value: number, currency: string) {
@@ -30,9 +31,18 @@ export function PayoutCard({
   amount,
   status,
   createdAt,
+  onClick,
 }: PayoutCardProps) {
   return (
-    <div className="bg-white border border-[#E8E2D6] rounded-xl px-5 py-4 flex items-center justify-between gap-4">
+    <div
+      onClick={onClick}
+      className={`
+            bg-white border border-[#E8E2D6] rounded-xl px-5 py-4
+            flex items-center justify-between gap-4
+            transition-shadow duration-150
+            ${onClick ? "cursor-pointer hover:shadow-md hover:border-[#D9D9D4]" : ""}
+          `}
+    >
       <div className="flex flex-col gap-1 min-w-0">
         <span className="text-xs text-[#7BA05D] font-mono truncate">
           {payoutId}
