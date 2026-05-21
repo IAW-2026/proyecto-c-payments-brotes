@@ -3,16 +3,16 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const payment = await prisma.payment.findUnique({
-    where: { id: params.id },
-  });
+  const { id } = await params;
 
+  const payment = await prisma.payment.findUnique({
+    where: { id },
+  });
   if (!payment) {
     return NextResponse.json({ error: "Payment not found" }, { status: 404 });
   }
-
   return NextResponse.json({
     payment_id: payment.id,
     order_id: payment.order_id,
