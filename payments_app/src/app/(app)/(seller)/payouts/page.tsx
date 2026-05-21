@@ -1,106 +1,39 @@
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
-import { redirect, notFound } from "next/navigation";
-import Link from "next/link";
-import { StatusBadge } from "@/components/ui/StatusBadge";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { PayoutList } from "@/components/ui/PayoutList";
+import { redirect } from "next/navigation";
 import { PayoutStatus } from "@/components/ui/StatusBadge";
 
-function formatAmount(value: number, currency: string) {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-function formatDate(date: Date) {
-  return new Intl.DateTimeFormat("es-AR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-}
-
-export default async function PayoutDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function SellerPayoutsPage() {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  const { id } = await params;
-
-  const payout = await prisma.payout.findUnique({
-    where: { id },
-    include: { payment: true }, // ← trae description y buyer_id
+  const payouts = await prisma.payout.findMany({
+    where: { seller_id: userId },
+    orderBy: { createdAt: "desc" },
   });
 
-  if (!payout || payout.seller_id !== userId) notFound();
+  function isPayoutStatus(value: string): value is PayoutStatus {
+    return ["pending", "paid"].includes(value);
+  }
+  const serialized = payouts.map((p) => ({
+    ...p,
+    createdAt: p.createdAt.toISOString(),
+    status: isPayoutStatus(p.status) ? p.status : "pending",
+  }));
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-10">
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-[#A67C52] mb-8">
-        <Link
-          href="/payouts"
-          className="hover:text-[#243B27] transition-colors"
-        >
-          Mis acreditaciones
-        </Link>
-        <span className="text-[#D9D9D4]">/</span>
-        <span className="text-[#243B27] font-mono truncate">{payout.id}</span>
-      </nav>
-
-      {/* Card de detalle */}
-      <div className="bg-white border border-[#E8E2D6] rounded-xl px-6 py-6 flex flex-col gap-5">
-        {/* Header: monto + estado */}
-        <div className="flex items-start justify-between gap-4">
-          <span className="text-3xl font-bold text-[#243B27]">
-            {formatAmount(payout.amount, payout.currency)}
-          </span>
-          <StatusBadge status={payout.status as PayoutStatus} />
-        </div>
-
-        <hr className="border-[#E8E2D6]" />
-
-        <dl className="flex flex-col gap-4">
-          {payout.payment.description && (
-            <div>
-              <dt className="text-xs text-[#A67C52] mb-1">Descripción</dt>
-              <dd className="text-sm text-[#243B27]">
-                {payout.payment.description}
-              </dd>
-            </div>
-          )}
-          <div>
-            <dt className="text-xs text-[#A67C52] mb-1">Comprador</dt>
-            <dd className="text-xs text-[#7BA05D] font-mono">
-              {payout.payment.buyer_id}
-              {/*Consultar si debería ser posible obtener el nombre del comprador o el userId
-               a traves de clerk API */}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-xs text-[#A67C52] mb-1">ID de acreditación</dt>
-            <dd className="text-xs text-[#7BA05D] font-mono">{payout.id}</dd>
-          </div>
-          <div>
-            <dt className="text-xs text-[#A67C52] mb-1">ID de pago</dt>
-            <dd className="text-xs text-[#7BA05D] font-mono">
-              {payout.payment_id}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-xs text-[#A67C52] mb-1">Fecha</dt>
-            <dd className="text-sm text-[#243B27]">
-              {formatDate(payout.createdAt)}
-            </dd>
-          </div>
-        </dl>
-      </div>
+      <PageHeader
+        title="Mis acreditaciones"
+        subtitle={
+          serialized.length > 0
+            ? `${serialized.length} acreditación${serialized.length !== 1 ? "es" : ""} registrada${serialized.length !== 1 ? "s" : ""}`
+            : undefined
+        }
+      />
+      <PayoutList payouts={serialized} />
     </main>
   );
 }
