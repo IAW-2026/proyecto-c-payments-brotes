@@ -3,7 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PaymentList } from "@/components/ui/PaymentsList";
 import { redirect } from "next/navigation";
-import { PaymentStatus } from "@/components/ui/PaymentsList";
+//import { PaymentStatus } from "@/components/ui/PaymentsList";
+import { PaymentStatus } from "@/components/ui/StatusBadge";
+//import { BadgeStatus } from "@/components/ui/StatusBadge";
 
 export default async function BuyerPaymentsPage() {
   const { userId } = await auth();

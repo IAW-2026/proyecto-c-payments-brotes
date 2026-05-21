@@ -1,7 +1,9 @@
-type PaymentStatus = "pending" | "approved" | "rejected";
+export type PaymentStatus = "pending" | "approved" | "rejected";
+export type PayoutStatus = "pending" | "paid";
+export type BadgeStatus = PaymentStatus | PayoutStatus;
 
 const statusConfig: Record<
-  PaymentStatus,
+  BadgeStatus,
   { label: string; classes: string; dot: string }
 > = {
   pending: {
@@ -19,10 +21,15 @@ const statusConfig: Record<
     classes: "bg-[#FDF0ED] text-[#E07A5F] border border-[#F5C9BF]",
     dot: "bg-[#E07A5F]",
   },
+  paid: {
+    label: "Acreditado",
+    classes: "bg-[#E6F0FA] text-[#2E6EA6] border border-[#B9D6F0]",
+    dot: "bg-[#2E6EA6]",
+  },
 };
 
 interface StatusBadgeProps {
-  status: PaymentStatus;
+  status: BadgeStatus;
 }
 
 export function StatusBadge({ status }: StatusBadgeProps) {

@@ -1,11 +1,12 @@
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { BadgeStatus } from "@/components/ui/StatusBadge";
 type PaymentStatus = "pending" | "approved" | "rejected";
 
 interface PaymentCardProps {
   paymentId: string;
   orderId: string;
   amount: { value: number; currency: string };
-  status: PaymentStatus;
+  status: BadgeStatus;
   createdAt: string;
   onClick?: () => void;
 }

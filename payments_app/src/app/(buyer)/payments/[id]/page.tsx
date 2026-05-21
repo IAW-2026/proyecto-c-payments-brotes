@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import { StatusBadge } from "@/components/ui/StatusBadge";
+import { BadgeStatus, StatusBadge } from "@/components/ui/StatusBadge";
 
 function formatAmount(value: number, currency: string) {
   return new Intl.NumberFormat("es-AR", {
@@ -60,9 +60,7 @@ export default async function PaymentDetailPage({
           <span className="text-3xl font-bold text-[#243B27]">
             {formatAmount(payment.amount, payment.currency)}
           </span>
-          <StatusBadge
-            status={payment.status as "pending" | "approved" | "rejected"}
-          />
+          <StatusBadge status={payment.status as BadgeStatus} />
         </div>
 
         <hr className="border-[#E8E2D6]" />
