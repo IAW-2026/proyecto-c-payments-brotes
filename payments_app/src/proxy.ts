@@ -9,6 +9,13 @@ const isProtectedRoute = createRouteMatcher([
 
 const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
 
+const routeRoleMap: { matcher: (req: NextRequest) => boolean; role: string }[] =
+  [
+    { matcher: createRouteMatcher(["/(buyer)(.*)"]), role: "buyer" },
+    { matcher: createRouteMatcher(["/(seller)(.*)"]), role: "seller" },
+    { matcher: createRouteMatcher(["/(admin)(.*)"]), role: "admin" },
+  ];
+
 export default clerkMiddleware(async (auth, req: NextRequest) => {
   const { pathname } = req.nextUrl;
 
@@ -24,9 +31,25 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 
   if (isPublicRoute(req)) return NextResponse.next();
 
+  if (isPublicRoute(req)) return NextResponse.next();
+
   if (isProtectedRoute(req)) {
-    await auth.protect();
+    // 1. Verificar autenticación
+    const { userId, sessionClaims } = await auth.protect();
+
+    // 2. Leer rol desde publicMetadata
+    const userRole = (sessionClaims?.metadata as { role?: string })?.role;
+
+    // 3. Verificar que el rol coincide con la ruta
+    const requiredRole = routeRoleMap.find(({ matcher }) => matcher(req))?.role;
+
+    if (requiredRole && userRole !== requiredRole) {
+      const pendingUrl = new URL("/pending", req.url);
+      return NextResponse.redirect(pendingUrl);
+    }
   }
+
+  return NextResponse.next();
 });
 
 export const config = {
