@@ -1,11 +1,14 @@
 $kind: collection
 name: Brotes Payments API
 variables:
-  - key: order_id
-    value: 'order-001'
-  - key: buyer_id
-    value: 'buyer-001'
-  - key: seller_id
-    value: 'seller-001'
-  - key: payment_id
-    value: ''
+  order_id: order-001
+  buyer_id: buyer-001
+  seller_id: seller-001
+  payment_id: ""
+auth:
+  - id: 8248c099-d20b-4293-be5c-6d32ffa39c24
+    type: apikey
+    name: API Key
+    credentials:
+      key: Authorization
+      value: Bearer payments_secret_key_555222333
