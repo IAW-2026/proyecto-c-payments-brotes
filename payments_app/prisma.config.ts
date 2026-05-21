@@ -3,23 +3,16 @@
 //import "dotenv/config";
 //config({ path: ".env.local" });
 import { defineConfig } from "prisma/config";
-import { PrismaNeon } from "@prisma/adapter-neon";
 import * as dotenv from "dotenv";
-
 dotenv.config({ path: ".env.local" });
+
 export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
-    seed: "tsx ./prisma/seed.ts", // ← agregar esto
+    seed: "tsx ./prisma/seed.ts",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
-  },
-  // @ts-expect-error - migrate is early access
-  migrate: {
-    async adapter() {
-      return new PrismaNeon({ connectionString: process.env.DATABASE_URL });
-    },
+    url: process.env["DIRECT_URL"],
   },
 });
