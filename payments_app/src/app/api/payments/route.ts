@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { createPreference } from "@/services/mercadopagoService";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -21,6 +22,13 @@ export async function POST(req: NextRequest) {
       status: "approved",
     },
   });
+  const preference = await createPreference({
+    paymentId: payment.id,
+    title: `Orden ${body.order_id}`,
+    amount: body.amount,
+    currency: body.currency ?? "ARS",
+    buyerEmail: body.buyer_email,
+  });
 
   if (payment.status === "approved") {
     await prisma.payout.create({
@@ -40,6 +48,8 @@ export async function POST(req: NextRequest) {
       status: payment.status,
       amount: { value: payment.amount, currency: payment.currency },
       created_at: payment.createdAt,
+      mp_preference_id: preference.id,
+      mp_init_point: preference.init_point,
     },
     { status: 201 },
   );

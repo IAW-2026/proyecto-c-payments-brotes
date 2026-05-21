@@ -23,6 +23,7 @@ model Payment {
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  buyer_email String?
 
   payout      Payout?
 }
@@ -37,4 +38,5 @@ model Payout {
   status     String   @default("pending") // pending | paid
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  seller_email String?
 }
