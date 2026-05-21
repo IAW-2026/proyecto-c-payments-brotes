@@ -3,10 +3,11 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { sellerId: string } },
+  { params }: { params: Promise<{ sellerId: string }> },
 ) {
+  const { sellerId } = await params;
   const payouts = await prisma.payout.findMany({
-    where: { seller_id: params.sellerId },
+    where: { seller_id: sellerId },
     orderBy: { createdAt: "desc" },
   });
 
