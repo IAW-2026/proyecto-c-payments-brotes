@@ -66,7 +66,7 @@ export default async function AdminDashboardPage() {
 
       {/* Pagos */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-sm font-semibold text-[#243B27] uppercase tracking-wide">
+        <h2 className="text-sm font-semibold text-verde-profundo uppercase tracking-wide">
           Pagos
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -86,7 +86,7 @@ export default async function AdminDashboardPage() {
 
       {/* Acreditaciones */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-sm font-semibold text-[#243B27] uppercase tracking-wide">
+        <h2 className="text-sm font-semibold text-verde-profundo uppercase tracking-wide">
           Acreditaciones
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -105,13 +105,13 @@ export default async function AdminDashboardPage() {
 
       {/* Últimos pagos */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-sm font-semibold text-[#243B27] uppercase tracking-wide">
+        <h2 className="text-sm font-semibold text-verde-profundo uppercase tracking-wide">
           Últimos pagos
         </h2>
-        <div className="bg-white border border-[#E8E2D6] rounded-xl overflow-hidden">
+        <div className="bg-white border border-beige rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#E8E2D6] text-xs text-[#A67C52]">
+              <tr className="border-b border-beige text-xs text-marron-tierra">
                 <th className="text-left px-5 py-3 font-medium">ID</th>
                 <th className="text-left px-5 py-3 font-medium">Descripción</th>
                 <th className="text-left px-5 py-3 font-medium">Fecha</th>
@@ -123,18 +123,18 @@ export default async function AdminDashboardPage() {
               {recentPayments.map((payment, i) => (
                 <tr
                   key={payment.id}
-                  className={`${i !== recentPayments.length - 1 ? "border-b border-[#E8E2D6]" : ""}`}
+                  className={`${i !== recentPayments.length - 1 ? "border-b border-beige" : ""}`}
                 >
                   <td className="px-5 py-3 font-mono text-xs text-[#7BA05D] truncate max-w-[120px]">
                     {payment.id}
                   </td>
-                  <td className="px-5 py-3 text-[#243B27] truncate max-w-[160px]">
+                  <td className="px-5 py-3 text-verde-profundo truncate max-w-[160px]">
                     {payment.description ?? "—"}
                   </td>
-                  <td className="px-5 py-3 text-[#A67C52]">
+                  <td className="px-5 py-3 text-marron-tierra">
                     {formatDate(payment.createdAt)}
                   </td>
-                  <td className="px-5 py-3 text-right font-semibold text-[#243B27]">
+                  <td className="px-5 py-3 text-right font-semibold text-verde-profundo">
                     {formatAmount(payment.amount)}
                   </td>
                   <td className="px-5 py-3 text-right">
