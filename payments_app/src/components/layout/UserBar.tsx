@@ -1,5 +1,5 @@
 import { currentUser } from "@clerk/nextjs/server";
-import { SignOutButton } from "@clerk/nextjs";
+import { SignOutButton } from "./SignOutButton";
 
 export async function UserBar() {
   const user = await currentUser();
@@ -31,11 +31,7 @@ export async function UserBar() {
           )}
         </div>
       </div>
-      <SignOutButton>
-        <button className="text-sm text-verde-bosque hover:text-verde-profundo hover:bg-verde-brote px-3 py-1.5 rounded-lg transition-colors cursor-pointer">
-          Cerrar sesión
-        </button>
-      </SignOutButton>
+      <SignOutButton />
     </div>
   );
 }
