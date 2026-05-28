@@ -30,6 +30,9 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   const { pathname } = req.nextUrl;
 
   if (pathname.startsWith("/api")) {
+    if (pathname.startsWith("/api/webhooks")) {
+      return NextResponse.next();
+    }
     const authHeader = req.headers.get("authorization");
     const token = authHeader?.replace("Bearer ", "");
 

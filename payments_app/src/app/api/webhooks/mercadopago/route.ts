@@ -43,10 +43,20 @@ export async function POST(req: NextRequest) {
 
   const newStatus = statusMap[status ?? ""] ?? "pending";
 
-  await prisma.payment.update({
+  const updatedPayment = await prisma.payment.update({
     where: { id: externalReference },
     data: { status: newStatus },
   });
-
+  if (newStatus === "approved") {
+    await prisma.payout.create({
+      data: {
+        payment_id: updatedPayment.id,
+        seller_id: updatedPayment.seller_id,
+        amount: updatedPayment.amount,
+        currency: updatedPayment.currency,
+        status: "pending",
+      },
+    });
+  }
   return NextResponse.json({ received: true });
 }

@@ -19,11 +19,11 @@ export async function POST(req: NextRequest) {
       seller_id,
       amount,
       currency: currency ?? "ARS",
-      status: "approved",
+      status: "pending",
       buyer_email: body.buyer_email ?? null,
     },
   });
-
+  /*
   if (payment.status === "approved") {
     await prisma.payout.create({
       data: {
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
         status: "pending",
       },
     });
-  }
+    } */
   let mpData = {};
   if (body.buyer_email) {
     const preference = await createPreference({
