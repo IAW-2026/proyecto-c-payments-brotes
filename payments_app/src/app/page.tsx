@@ -5,11 +5,11 @@ export default async function HomePage() {
   const { userId, sessionClaims } = await auth();
 
   if (!userId) redirect("/sign-in");
-
-  const metadata = sessionClaims?.publicMetadata as
-    | { role?: string }
-    | undefined;
-  const role = metadata?.role;
+  console.log("sessionClaims(page.tsx):", sessionClaims);
+  const rawRole = sessionClaims?.metadata;
+  const role = Array.isArray(rawRole)
+    ? rawRole[0]
+    : (rawRole as string | undefined);
 
   if (role === "admin") redirect("/dashboard");
   if (role === "seller") redirect("/payouts");
