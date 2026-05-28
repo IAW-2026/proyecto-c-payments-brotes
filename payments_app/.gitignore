@@ -48,4 +48,4 @@ CLAUDE.md
 # clerk configuration (can include secrets)
 /.clerk/
 
-/src/app/generated/prisma
+./src/app/generated/prisma
