@@ -25,18 +25,18 @@ model Payment {
   updatedAt   DateTime @updatedAt
   buyer_email String?
 
-  payout      Payout?
+  payout Payout?
 }
 
 model Payout {
-  id         String   @id @default(cuid())
-  payment_id String   @unique
-  payment    Payment  @relation(fields: [payment_id], references: [id])
-  seller_id  String
-  amount     Float
-  currency   String   @default("ARS")
-  status     String   @default("pending") // pending | paid
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id           String   @id @default(cuid())
+  payment_id   String   @unique
+  payment      Payment  @relation(fields: [payment_id], references: [id])
+  seller_id    String
+  amount       Float
+  currency     String   @default("ARS")
+  status       String   @default("pending") // pending | paid
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   seller_email String?
 }
