@@ -1,7 +1,7 @@
 name: Development
 values:
   - key: baseUrl
-    value: "http://localhost:3000"
+    value: "https://proyecto-c-payments-brotes.vercel.app"
     enabled: true
     type: default
     buyer_id: user_3Dv1ps1sKzwvsFhcto5WdgOgBMb
