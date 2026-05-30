@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       amount,
       currency: currency ?? "ARS",
       status: "pending",
-      buyer_email: body.buyer_email ?? null,
+      buyer_email: body.buyer_email ?? null, //corregir es algo que se puede sacar de la BD
     },
   });
   /*
