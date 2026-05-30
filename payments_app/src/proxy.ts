@@ -19,6 +19,7 @@ const isProtectedRoute = createRouteMatcher([
   "/payments(.*)",
   "/payouts(.*)",
   "/dashboard(.*)",
+  "/test(.*)",
 ]);
 
 const routeRoleMap = [
@@ -50,10 +51,10 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   if (isProtectedRoute(req)) {
     // 1. Verificar autenticación
     const { userId, sessionClaims } = await auth.protect();
-    console.log(
+    /*console.log(
       "sessionClaims completo:",
       JSON.stringify(sessionClaims, null, 2),
-    );
+    );*/
     // 2. Leer rol desde publicMetadata
     //
     const rawRole = sessionClaims?.metadata;

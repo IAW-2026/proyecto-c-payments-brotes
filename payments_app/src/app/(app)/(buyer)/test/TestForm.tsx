@@ -2,19 +2,13 @@
 
 import { useState, useTransition } from "react";
 import { createPaymentAction, PaymentResult } from "./Actions";
-
+type Seller = { id: string; email: string; name: string };
 const fields = [
   { label: "Order ID", name: "order_id", type: "text" },
-  { label: "Buyer ID", name: "buyer_id", type: "text" },
-  { label: "Seller ID", name: "seller_id", type: "text" },
   { label: "Monto", name: "amount", type: "number" },
   { label: "Moneda", name: "currency", type: "text" },
   { label: "Email del comprador", name: "buyer_email", type: "email" },
 ];
-
-function randomId(prefix: string) {
-  return `${prefix}_${Math.random().toString(36).slice(2, 11)}`;
-}
 
 function randomAmount() {
   return String(Math.floor(Math.random() * 90000) + 1000);
@@ -23,8 +17,6 @@ function randomAmount() {
 function generateTestData() {
   return {
     order_id: `order-${Date.now()}`,
-    buyer_id: randomId("user"),
-    seller_id: randomId("user"),
     amount: randomAmount(),
     currency: "ARS",
     buyer_email: `test_${Math.random().toString(36).slice(2, 7)}@testuser.com`,
@@ -33,8 +25,18 @@ function generateTestData() {
 
 type FormValues = Record<string, string>;
 
-export function TestForm() {
-  const [values, setValues] = useState<FormValues>(() => generateTestData());
+export function TestForm({
+  buyerId,
+  sellers,
+}: {
+  buyerId: string;
+  sellers: Seller[];
+}) {
+  const [values, setValues] = useState<FormValues>(() => ({
+    ...generateTestData(),
+    buyer_id: buyerId,
+    seller_id: sellers[0]?.id ?? "",
+  }));
   const [result, setResult] = useState<PaymentResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -55,6 +57,7 @@ export function TestForm() {
     Object.entries(values).forEach(([k, v]) => formData.append(k, v));
     setResult(null);
     setError(null);
+    
     startTransition(async () => {
       const data = await createPaymentAction(formData);
       if (data.error) {
@@ -76,7 +79,37 @@ export function TestForm() {
           Rellenar con datos de prueba
         </button>
       </div>
-
+      <div>
+        <label className="block text-sm font-medium text-verde-profundo mb-1">
+          Seller
+        </label>
+        <select
+          name="seller_id"
+          value={values.seller_id}
+          onChange={(e) =>
+            setValues((prev) => ({ ...prev, seller_id: e.target.value }))
+          }
+          className="w-full px-3 py-2 rounded-lg border border-verde-brote bg-white text-verde-profundo text-sm focus:outline-none focus:ring-2 focus:ring-verde-bosque"
+        >
+          {sellers.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.name} — {s.email}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-verde-profundo mb-1">
+          Buyer ID
+        </label>
+        <input
+          type="hidden"
+          name="buyer_id"
+          value={buyerId}
+          disabled
+          className="w-full px-3 py-2 rounded-lg border border-verde-brote bg-slate-50 text-verde-profundo/50 text-sm"
+        />
+      </div>
       {fields.map(({ label, name, type }) => (
         <div key={name}>
           <label className="block text-sm font-medium text-verde-profundo mb-1">
