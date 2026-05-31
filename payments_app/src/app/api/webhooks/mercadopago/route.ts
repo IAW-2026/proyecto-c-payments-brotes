@@ -39,62 +39,70 @@ const client = new MercadoPagoConfig({
 });
 
 export async function POST(req: NextRequest) {
-  const rawBody = await req.text();
+  try {
+    const rawBody = await req.text();
 
-  if (!verifyMPSignature(req, rawBody)) {
-    return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
-  }
+    if (!verifyMPSignature(req, rawBody)) {
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+    }
 
-  const body = JSON.parse(rawBody);
+    const body = JSON.parse(rawBody);
 
-  // MP manda distintos tipos de notificaciones
-  if (body.type !== "payment") {
+    // MP manda distintos tipos de notificaciones
+    if (body.type !== "payment") {
+      return NextResponse.json({ received: true });
+    }
+
+    const paymentId = body.data?.id;
+    if (!paymentId) {
+      return NextResponse.json({ error: "No payment id" }, { status: 400 });
+    }
+
+    // Consultamos el pago directamente a MP
+    const payment = new Payment(client);
+    const mpPayment = await payment.get({ id: paymentId });
+
+    const externalReference = mpPayment.external_reference; // nuestro paymentId
+    const status = mpPayment.status; // approved, rejected, pending
+
+    if (!externalReference) {
+      return NextResponse.json(
+        { error: "No external reference" },
+        { status: 400 },
+      );
+    }
+
+    // Mapeamos el estado de MP al nuestro
+    const statusMap: Record<string, string> = {
+      approved: "approved",
+      rejected: "rejected",
+      pending: "pending",
+      in_process: "pending",
+    };
+
+    const newStatus = statusMap[status ?? ""] ?? "pending";
+
+    const updatedPayment = await prisma.payment.update({
+      where: { id: externalReference },
+      data: { status: newStatus },
+    });
+    if (newStatus === "approved") {
+      await prisma.payout.create({
+        data: {
+          payment_id: updatedPayment.id,
+          seller_id: updatedPayment.seller_id,
+          amount: updatedPayment.amount,
+          currency: updatedPayment.currency,
+          status: "pending",
+        },
+      });
+    }
     return NextResponse.json({ received: true });
-  }
-
-  const paymentId = body.data?.id;
-  if (!paymentId) {
-    return NextResponse.json({ error: "No payment id" }, { status: 400 });
-  }
-
-  // Consultamos el pago directamente a MP
-  const payment = new Payment(client);
-  const mpPayment = await payment.get({ id: paymentId });
-
-  const externalReference = mpPayment.external_reference; // nuestro paymentId
-  const status = mpPayment.status; // approved, rejected, pending
-
-  if (!externalReference) {
+  } catch (error) {
+    console.error("[POST /api/webhooks/mercadopago]", error);
     return NextResponse.json(
-      { error: "No external reference" },
-      { status: 400 },
+      { error: "Error interno del servidor." },
+      { status: 500 },
     );
   }
-
-  // Mapeamos el estado de MP al nuestro
-  const statusMap: Record<string, string> = {
-    approved: "approved",
-    rejected: "rejected",
-    pending: "pending",
-    in_process: "pending",
-  };
-
-  const newStatus = statusMap[status ?? ""] ?? "pending";
-
-  const updatedPayment = await prisma.payment.update({
-    where: { id: externalReference },
-    data: { status: newStatus },
-  });
-  if (newStatus === "approved") {
-    await prisma.payout.create({
-      data: {
-        payment_id: updatedPayment.id,
-        seller_id: updatedPayment.seller_id,
-        amount: updatedPayment.amount,
-        currency: updatedPayment.currency,
-        status: "pending",
-      },
-    });
-  }
-  return NextResponse.json({ received: true });
 }
