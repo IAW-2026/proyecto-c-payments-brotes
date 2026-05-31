@@ -154,10 +154,10 @@ export default async function AdminDashboardPage({
                     i !== payments.length - 1 ? "border-b border-beige" : ""
                   }
                 >
-                  <td className="px-5 py-3 font-mono text-xs text-[#7BA05D] truncate max-w-[120px]">
+                  <td className="px-5 py-3 font-mono text-xs text-verde-hoja truncate max-w-[120px]">
                     {payment.id}
                   </td>
-                  <td className="px-5 py-3 text-verde-profundo truncate max-w-[160px]">
+                  <td className="px-5 py-3 text-verde-profundo truncate max-w-40">
                     {payment.description ?? "—"}
                   </td>
                   <td className="px-5 py-3 text-marron-tierra">
@@ -206,10 +206,10 @@ export default async function AdminDashboardPage({
                     i !== payouts.length - 1 ? "border-b border-beige" : ""
                   }
                 >
-                  <td className="px-5 py-3 font-mono text-xs text-[#7BA05D] truncate max-w-[120px]">
+                  <td className="px-5 py-3 font-mono text-xs text-verde-hoja truncate max-w-[120px]">
                     {payout.id}
                   </td>
-                  <td className="px-5 py-3 text-verde-profundo truncate max-w-[160px]">
+                  <td className="px-5 py-3 text-verde-profundo truncate max-w-40">
                     {payout.seller_email ?? payout.seller_id}
                   </td>
                   <td className="px-5 py-3 text-marron-tierra">
