@@ -3,7 +3,8 @@ import Link from "next/link";
 
 export default async function Sidebar() {
   const { sessionClaims } = await auth();
-  const role = (sessionClaims?.publicMetadata as { role?: string })?.role;
+  const userRole = sessionClaims?.metadata as string[] | undefined;
+  const role = userRole?.[0];
 
   return (
     <aside className="w-64 h-full bg-verde-profundo text-verde-brote flex flex-col shrink-0">
