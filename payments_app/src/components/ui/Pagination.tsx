@@ -19,6 +19,7 @@ export function Pagination({
       {page > 1 ? (
         <Link
           href={`${basePath}?${pageParam}=${page - 1}`}
+          scroll={false}
           className="px-3 py-1.5 rounded-lg border border-verde-brote text-verde-bosque hover:bg-verde-brote transition-colors"
         >
           ← Anterior
@@ -32,6 +33,7 @@ export function Pagination({
       {page < totalPages ? (
         <Link
           href={`${basePath}?${pageParam}=${page + 1}`}
+          scroll={false}
           className="px-3 py-1.5 rounded-lg border border-verde-brote text-verde-bosque hover:bg-verde-brote transition-colors"
         >
           Siguiente →
