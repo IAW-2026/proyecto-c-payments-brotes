@@ -62,19 +62,29 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   }
 
   if (isPublicRoute(req)) return NextResponse.next();
+  // Si tiene rol y va a /pending, redirigir a su ruta
+  if (pathname === "/pending") {
+    const { sessionClaims } = await auth();
+    const userRole = sessionClaims?.metadata as string[] | undefined;
+    if (userRole?.includes("admin"))
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    if (userRole?.includes("seller"))
+      return NextResponse.redirect(new URL("/payouts", req.url));
+    if (userRole?.includes("buyer"))
+      return NextResponse.redirect(new URL("/payments", req.url));
+  }
+
   if (isProtectedRoute(req)) {
     const { sessionClaims } = await auth.protect();
-    const rawRole = sessionClaims?.metadata;
-    const userRole = Array.isArray(rawRole)
-      ? rawRole[0]
-      : (rawRole as string | undefined);
+    const userRole = sessionClaims?.metadata as string[] | undefined;
 
-    // Verificar que el rol coincide con la ruta
+    if (!userRole || userRole.length === 0) {
+      return NextResponse.redirect(new URL("/pending", req.url));
+    }
+
     const requiredRole = routeRoleMap.find(({ matcher }) => matcher(req))?.role;
-
-    if (requiredRole && userRole !== requiredRole) {
-      const pendingUrl = new URL("/pending", req.url);
-      return NextResponse.redirect(pendingUrl);
+    if (requiredRole && !userRole.includes(requiredRole)) {
+      return NextResponse.redirect(new URL("/pending", req.url));
     }
   }
 
