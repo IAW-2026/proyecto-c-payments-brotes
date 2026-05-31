@@ -1,6 +1,5 @@
-import { StatusBadge } from "@/components/ui/StatusBadge";
-import { BadgeStatus } from "@/components/ui/StatusBadge";
-type PaymentStatus = "pending" | "approved" | "rejected";
+import { StatusBadge, BadgeStatus } from "@/components/ui/StatusBadge";
+import { formatAmount, formatDate } from "@/lib/format";
 
 interface PaymentCardProps {
   paymentId: string;
@@ -9,22 +8,6 @@ interface PaymentCardProps {
   status: BadgeStatus;
   createdAt: string;
   onClick?: () => void;
-}
-
-function formatAmount(value: number, currency: string) {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-function formatDate(iso: string) {
-  return new Intl.DateTimeFormat("es-AR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(iso));
 }
 
 export function PaymentCard({

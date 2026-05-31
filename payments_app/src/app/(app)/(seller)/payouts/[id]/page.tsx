@@ -2,26 +2,8 @@ import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import { StatusBadge } from "@/components/ui/StatusBadge";
-import { PayoutStatus } from "@/components/ui/StatusBadge";
-
-function formatAmount(value: number, currency: string) {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-function formatDate(date: Date) {
-  return new Intl.DateTimeFormat("es-AR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-}
+import { StatusBadge, PayoutStatus } from "@/components/ui/StatusBadge";
+import { formatAmount, formatDateLong } from "@/lib/format";
 
 export default async function PayoutDetailPage({
   params,
@@ -96,7 +78,7 @@ export default async function PayoutDetailPage({
           <div>
             <dt className="text-xs text-[#A67C52] mb-1">Fecha</dt>
             <dd className="text-sm text-[#243B27]">
-              {formatDate(payout.createdAt)}
+              {formatDateLong(payout.createdAt)}
             </dd>
           </div>
         </dl>
