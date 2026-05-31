@@ -27,97 +27,113 @@ function formatDate(date: Date) {
 export default async function AdminDashboardPage({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: Promise<{ paymentsPage?: string; payoutsPage?: string }>;
 }) {
-  const { userId, sessionClaims } = await auth();
+  const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  const { page: pageParam } = await searchParams;
-  const { page, skip, take } = getPaginationParams({ page: pageParam });
-  // Pagos
-  const [payments, totalPayments] = await Promise.all([
-    prisma.payment.findMany({ orderBy: { createdAt: "desc" }, skip, take }),
-    prisma.payment.count(),
+  const { paymentsPage, payoutsPage } = await searchParams;
+
+  const {
+    page: pPage,
+    skip: pSkip,
+    take: pTake,
+  } = getPaginationParams({ page: paymentsPage });
+
+  const {
+    page: oPage,
+    skip: oSkip,
+    take: oTake,
+  } = getPaginationParams({ page: payoutsPage });
+
+  // Stats globales — aggregate, no dependen de la página
+  const [paymentStats, paymentsByStatus, payoutStats, payoutsByStatus] =
+    await Promise.all([
+      prisma.payment.aggregate({
+        _sum: { amount: true },
+        _avg: { amount: true },
+        _count: true,
+      }),
+      prisma.payment.groupBy({ by: ["status"], _count: true }),
+      prisma.payout.aggregate({ _sum: { amount: true }, _count: true }),
+      prisma.payout.groupBy({ by: ["status"], _count: true }),
+    ]);
+
+  const statusCount = (
+    groups: { status: string; _count: number }[],
+    status: string,
+  ) => groups.find((g) => g.status === status)?._count ?? 0;
+
+  // Datos paginados
+  const [payments, payouts] = await Promise.all([
+    prisma.payment.findMany({
+      orderBy: { createdAt: "desc" },
+      skip: pSkip,
+      take: pTake,
+    }),
+    prisma.payout.findMany({
+      orderBy: { createdAt: "desc" },
+      skip: oSkip,
+      take: oTake,
+    }),
   ]);
-  const totalPages = Math.ceil(totalPayments / PAGE_SIZE);
-  // stats las calculás sobre el total — necesitás un aggregate aparte:
-  const stats = await prisma.payment.aggregate({
-    _sum: { amount: true },
-    _avg: { amount: true },
-    _count: true,
-  });
-  const totalAmountPayments = payments.reduce((acc, p) => acc + p.amount, 0);
-  const avgAmount = totalPayments > 0 ? totalAmountPayments / totalPayments : 0;
 
-  const paymentsByStatus = {
-    pending: payments.filter((p) => p.status === "pending").length,
-    approved: payments.filter((p) => p.status === "approved").length,
-    rejected: payments.filter((p) => p.status === "rejected").length,
-  };
-
-  // Acreditaciones
-  const payouts = await prisma.payout.findMany({
-    orderBy: { createdAt: "desc" },
-  });
-
-  const totalPayouts = payouts.length;
-  const totalAmountPayouts = payouts.reduce((acc, p) => acc + p.amount, 0);
-
-  const payoutsByStatus = {
-    pending: payouts.filter((p) => p.status === "pending").length,
-    paid: payouts.filter((p) => p.status === "paid").length,
-  };
-
-  // Últimos 5 pagos
-  const recentPayments = payments.slice(0, 5);
+  const totalPaymentPages = Math.ceil(paymentStats._count / PAGE_SIZE);
+  const totalPayoutPages = Math.ceil(payoutStats._count / PAGE_SIZE);
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-10 flex flex-col gap-10">
       <PageHeader title="Panel admin" subtitle="Vista general del sistema" />
 
-      {/* Pagos */}
+      {/* Stats pagos */}
       <section className="flex flex-col gap-4">
         <h2 className="text-sm font-semibold text-verde-profundo uppercase tracking-wide">
           Pagos
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <StatCard label="Total de pagos" value={totalPayments} />
+          <StatCard label="Total de pagos" value={paymentStats._count} />
           <StatCard
-            label="Monto total procesado"
-            value={formatAmount(totalAmountPayments)}
+            label="Monto total"
+            value={formatAmount(paymentStats._sum.amount ?? 0)}
           />
-          <StatCard label="Monto promedio" value={formatAmount(avgAmount)} />
+          <StatCard
+            label="Monto promedio"
+            value={formatAmount(paymentStats._avg.amount ?? 0)}
+          />
           <StatCard
             label="Por estado"
-            value={`${paymentsByStatus.approved} aprobados`}
-            sub={`${paymentsByStatus.pending} pendientes · ${paymentsByStatus.rejected} rechazados`}
+            value={`${statusCount(paymentsByStatus, "approved")} aprobados`}
+            sub={`${statusCount(paymentsByStatus, "pending")} pendientes · ${statusCount(paymentsByStatus, "rejected")} rechazados`}
           />
         </div>
       </section>
 
-      {/* Acreditaciones */}
+      {/* Stats acreditaciones */}
       <section className="flex flex-col gap-4">
         <h2 className="text-sm font-semibold text-verde-profundo uppercase tracking-wide">
           Acreditaciones
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <StatCard label="Total de acreditaciones" value={totalPayouts} />
+          <StatCard
+            label="Total de acreditaciones"
+            value={payoutStats._count}
+          />
           <StatCard
             label="Monto total acreditado"
-            value={formatAmount(totalAmountPayouts)}
+            value={formatAmount(payoutStats._sum.amount ?? 0)}
           />
           <StatCard
             label="Por estado"
-            value={`${payoutsByStatus.paid} acreditados`}
-            sub={`${payoutsByStatus.pending} pendientes`}
+            value={`${statusCount(payoutsByStatus, "paid")} acreditados`}
+            sub={`${statusCount(payoutsByStatus, "pending")} pendientes`}
           />
         </div>
       </section>
 
-      {/* Últimos pagos */}
+      {/* Tabla pagos paginada */}
       <section className="flex flex-col gap-4">
         <h2 className="text-sm font-semibold text-verde-profundo uppercase tracking-wide">
-          Últimos pagos
+          Todos los pagos
         </h2>
         <div className="bg-white border border-beige rounded-xl overflow-hidden">
           <table className="w-full text-sm">
@@ -131,10 +147,12 @@ export default async function AdminDashboardPage({
               </tr>
             </thead>
             <tbody>
-              {recentPayments.map((payment, i) => (
+              {payments.map((payment, i) => (
                 <tr
                   key={payment.id}
-                  className={`${i !== recentPayments.length - 1 ? "border-b border-beige" : ""}`}
+                  className={
+                    i !== payments.length - 1 ? "border-b border-beige" : ""
+                  }
                 >
                   <td className="px-5 py-3 font-mono text-xs text-[#7BA05D] truncate max-w-[120px]">
                     {payment.id}
@@ -156,6 +174,64 @@ export default async function AdminDashboardPage({
             </tbody>
           </table>
         </div>
+        <Pagination
+          page={pPage}
+          totalPages={totalPaymentPages}
+          basePath="/dashboard"
+          pageParam="paymentsPage"
+        />
+      </section>
+
+      {/* Tabla payouts paginada */}
+      <section className="flex flex-col gap-4">
+        <h2 className="text-sm font-semibold text-verde-profundo uppercase tracking-wide">
+          Todas las acreditaciones
+        </h2>
+        <div className="bg-white border border-beige rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-beige text-xs text-marron-tierra">
+                <th className="text-left px-5 py-3 font-medium">ID</th>
+                <th className="text-left px-5 py-3 font-medium">Seller</th>
+                <th className="text-left px-5 py-3 font-medium">Fecha</th>
+                <th className="text-right px-5 py-3 font-medium">Monto</th>
+                <th className="text-right px-5 py-3 font-medium">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {payouts.map((payout, i) => (
+                <tr
+                  key={payout.id}
+                  className={
+                    i !== payouts.length - 1 ? "border-b border-beige" : ""
+                  }
+                >
+                  <td className="px-5 py-3 font-mono text-xs text-[#7BA05D] truncate max-w-[120px]">
+                    {payout.id}
+                  </td>
+                  <td className="px-5 py-3 text-verde-profundo truncate max-w-[160px]">
+                    {payout.seller_email ?? payout.seller_id}
+                  </td>
+                  <td className="px-5 py-3 text-marron-tierra">
+                    {formatDate(payout.createdAt)}
+                  </td>
+                  <td className="px-5 py-3 text-right font-semibold text-verde-profundo">
+                    {formatAmount(payout.amount)}
+                  </td>
+                  <td className="px-5 py-3 text-right">
+                    <StatusBadge status={payout.status as BadgeStatus} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <Pagination
+          page={oPage}
+          totalPages={totalPayoutPages}
+          basePath="/dashboard"
+          pageParam="payoutsPage"
+        />
       </section>
     </main>
   );
