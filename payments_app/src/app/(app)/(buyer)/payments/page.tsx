@@ -5,9 +5,14 @@ import { PaymentList } from "@/components/ui/PaymentsList";
 import { redirect } from "next/navigation";
 //import { PaymentStatus } from "@/components/ui/PaymentsList";
 import { PaymentStatus } from "@/components/ui/StatusBadge";
-//import { BadgeStatus } from "@/components/ui/StatusBadge";
+import { getPaginationParams, PAGE_SIZE } from "@/lib/pagination";
+import { Pagination } from "@/components/ui/Pagination";
 
-export default async function BuyerPaymentsPage() {
+export default async function BuyerPaymentsPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
   const { userId } = await auth();
   if (!userId) {
     redirect("/sign-in");
