@@ -47,8 +47,8 @@ export default async function SellerPayoutsPage({
             : undefined
         }
       />
-      <PayoutList payouts={serialized} />
       <Pagination page={page} totalPages={totalPages} basePath="/payouts" />
+      <PayoutList payouts={serialized} />
     </main>
   );
 }

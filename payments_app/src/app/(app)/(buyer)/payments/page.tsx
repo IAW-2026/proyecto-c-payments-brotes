@@ -49,8 +49,8 @@ export default async function BuyerPaymentsPage({
             : undefined
         }
       />
-      <PaymentList payments={serialized} />
       <Pagination page={page} totalPages={totalPages} basePath="/payments" />
+      <PaymentList payments={serialized} />
     </main>
   );
 }
