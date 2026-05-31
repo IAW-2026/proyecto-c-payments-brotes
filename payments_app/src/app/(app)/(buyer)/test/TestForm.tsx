@@ -37,6 +37,7 @@ export function TestForm({
     buyer_id: buyerId,
     seller_id: sellers[0]?.id ?? "",
   }));
+
   const [result, setResult] = useState<PaymentResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -46,18 +47,23 @@ export function TestForm({
   }
 
   function handleFill() {
-    setValues(generateTestData());
+    setValues({
+      ...generateTestData(),
+      buyer_id: buyerId,
+      seller_id: sellers[0]?.id ?? "",
+    });
     setResult(null);
     setError(null);
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    console.log("values al submit:", values);
     e.preventDefault();
     const formData = new FormData();
     Object.entries(values).forEach(([k, v]) => formData.append(k, v));
     setResult(null);
     setError(null);
-    
+
     startTransition(async () => {
       const data = await createPaymentAction(formData);
       if (data.error) {
