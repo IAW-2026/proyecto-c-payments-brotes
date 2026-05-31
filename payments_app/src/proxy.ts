@@ -46,25 +46,14 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   }
 
   if (isPublicRoute(req)) return NextResponse.next();
-  console.log("pathname:", pathname);
-  console.log("isProtectedRoute:", isProtectedRoute(req));
   if (isProtectedRoute(req)) {
-    // 1. Verificar autenticación
-    const { userId, sessionClaims } = await auth.protect();
-    /*console.log(
-      "sessionClaims completo:",
-      JSON.stringify(sessionClaims, null, 2),
-    );*/
-    // 2. Leer rol desde publicMetadata
-    //
+    const { sessionClaims } = await auth.protect();
     const rawRole = sessionClaims?.metadata;
     const userRole = Array.isArray(rawRole)
       ? rawRole[0]
       : (rawRole as string | undefined);
 
-    console.log("role:", sessionClaims.metadata);
-    console.log("role:", userRole);
-    // 3. Verificar que el rol coincide con la ruta
+    // Verificar que el rol coincide con la ruta
     const requiredRole = routeRoleMap.find(({ matcher }) => matcher(req))?.role;
 
     if (requiredRole && userRole !== requiredRole) {

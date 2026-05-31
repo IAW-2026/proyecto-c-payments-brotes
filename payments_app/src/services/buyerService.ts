@@ -47,7 +47,6 @@ export async function notifyApprovedPayment(data: {
 }) {
   // MOCK para desarrollo
   if (process.env.NODE_ENV === "development") {
-    console.log("[MOCK] notifyApprovedPayment →", data);
     return {
       acknowledged: true,
       payment_id: data.payment_id,
@@ -74,7 +73,6 @@ export async function notifyRejectedPayment(data: {
 }) {
   // MOCK para desarrollo
   if (process.env.NODE_ENV === "development") {
-    console.log("[MOCK] notifyRejectedPayment →", data);
     return {
       acknowledged: true,
       payment_id: data.payment_id,

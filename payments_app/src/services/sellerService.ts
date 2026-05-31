@@ -16,7 +16,6 @@ export async function notifyIncomingPayout(data: {
 }) {
   // MOCK para desarrollo
   if (process.env.NODE_ENV === "development") {
-    console.log("[MOCK] notifyIncomingPayout →", data);
     return {
       acknowledged: true,
       payout_id: data.payout_id,

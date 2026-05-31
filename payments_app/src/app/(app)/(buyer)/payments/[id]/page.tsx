@@ -74,24 +74,19 @@ export default async function PaymentDetailPage({
           </div>
         </dl>
 
-        {
-          (console.log(payment.mp_init_point),
-          payment.status === "pending" && payment.mp_init_point && (
+        {payment.status === "pending" && payment.mp_init_point && (
             <div>
               <hr className="border-[#E8E2D6]" />
               <a
                 href={payment.mp_init_point}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full
-            text-center py-2.5 px-4 bg-[#243B27] text-white text-sm font-medium
-            rounded-lg hover:bg-[#1a2c1d] transition-colors"
+                className="w-full text-center py-2.5 px-4 bg-[#243B27] text-white text-sm font-medium rounded-lg hover:bg-[#1a2c1d] transition-colors"
               >
                 Continuar pago en Mercado Pago →
               </a>
             </div>
-          ))
-        }
+          )}
       </div>
     </main>
   );

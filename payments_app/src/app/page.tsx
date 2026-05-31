@@ -5,7 +5,6 @@ export default async function HomePage() {
   const { userId, sessionClaims } = await auth();
 
   if (!userId) redirect("/sign-in");
-  console.log("sessionClaims(page.tsx):", sessionClaims);
   const rawRole = sessionClaims?.metadata;
   const role = Array.isArray(rawRole)
     ? rawRole[0]

@@ -57,7 +57,6 @@ export function TestForm({
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    console.log("values al submit:", values);
     e.preventDefault();
     const formData = new FormData();
     Object.entries(values).forEach(([k, v]) => formData.append(k, v));

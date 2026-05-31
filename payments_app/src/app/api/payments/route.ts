@@ -36,7 +36,6 @@ export async function POST(req: NextRequest) {
     });
     } */
   let mpData = {};
-  console.log("................");
   if (body.buyer_email) {
     const preference = await createPreference({
       paymentId: payment.id,
@@ -45,7 +44,6 @@ export async function POST(req: NextRequest) {
       currency: body.currency ?? "ARS",
       buyerEmail: body.buyer_email,
     });
-    console.log("MP preference:", preference.id, preference.init_point);
     await prisma.payment.update({
       where: { id: payment.id },
       data: {

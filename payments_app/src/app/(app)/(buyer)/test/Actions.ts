@@ -21,7 +21,6 @@ export async function createPaymentAction(
     currency: formData.get("currency") || "ARS",
     buyer_email: formData.get("buyer_email") || undefined,
   };
-  console.log("Fetching:", `${process.env.NEXT_PUBLIC_APP_URL}/api/payments`);
   const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/payments`, {
     method: "POST",
     headers: {
@@ -32,7 +31,6 @@ export async function createPaymentAction(
   });
 
   const data = await res.json();
-  console.log("-----data:", data);
   if (!res.ok) {
     return { error: data.error ?? "Error al crear el pago" } as PaymentResult;
   }
