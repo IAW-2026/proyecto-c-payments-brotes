@@ -17,15 +17,22 @@ export default async function BuyerPaymentsPage({
   if (!userId) {
     redirect("/sign-in");
   }
-  const payments = await prisma.payment.findMany({
-    where: { buyer_id: userId! },
-    orderBy: { createdAt: "desc" },
-  });
+  const { page, skip, take } = getPaginationParams(searchParams);
+  const [payments, total] = await Promise.all([
+    prisma.payment.findMany({
+      where: { buyer_id: userId },
+      orderBy: { createdAt: "desc" },
+      skip,
+      take,
+    }),
+    prisma.payment.count({ where: { buyer_id: userId } }),
+  ]);
 
   function isPaymentStatus(value: string): value is PaymentStatus {
     return ["pending", "approved", "rejected"].includes(value);
   }
 
+  const totalPages = Math.ceil(total / PAGE_SIZE);
   const serialized = payments.map((p) => ({
     ...p,
     createdAt: p.createdAt.toISOString(),
@@ -36,12 +43,13 @@ export default async function BuyerPaymentsPage({
       <PageHeader
         title="Mis pagos"
         subtitle={
-          serialized.length > 0
-            ? `${serialized.length} pago${serialized.length !== 1 ? "s" : ""} registrado${serialized.length !== 1 ? "s" : ""}`
+          total > 0
+            ? `${total} pago${total !== 1 ? "s" : ""} registrado${total !== 1 ? "s" : ""}`
             : undefined
         }
       />
       <PaymentList payments={serialized} />
+      <Pagination page={page} totalPages={totalPages} basePath="/payments" />
     </main>
   );
 }
