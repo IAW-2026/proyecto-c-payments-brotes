@@ -1,13 +1,51 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import MercadoPagoConfig, { Payment } from "mercadopago";
+import { createHmac } from "crypto";
+
+function verifyMPSignature(req: NextRequest, rawBody: string): boolean {
+  const xSignature = req.headers.get("x-signature");
+  const xRequestId = req.headers.get("x-request-id");
+  const urlParams = new URL(req.url).searchParams;
+  const dataId = urlParams.get("data.id") ?? urlParams.get("id");
+
+  if (!xSignature) return false;
+
+  // x-signature viene como "ts=...,v1=..."
+  const parts = Object.fromEntries(
+    xSignature.split(",").map((p) => p.split("=") as [string, string]),
+  );
+  const ts = parts["ts"];
+  const v1 = parts["v1"];
+  if (!ts || !v1) return false;
+
+  // El manifest que firma MP
+  const manifest = [
+    dataId ? `id:${dataId}` : null,
+    xRequestId ? `request-id:${xRequestId}` : null,
+    `ts:${ts}`,
+  ]
+    .filter(Boolean)
+    .join(";");
+
+  const secret = process.env.MP_WEBHOOK_SECRET!;
+  const expected = createHmac("sha256", secret).update(manifest).digest("hex");
+
+  return expected === v1;
+}
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MP_ACCESS_TOKEN!,
 });
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  const rawBody = await req.text();
+
+  if (!verifyMPSignature(req, rawBody)) {
+    return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+  }
+
+  const body = JSON.parse(rawBody);
 
   // MP manda distintos tipos de notificaciones
   if (body.type !== "payment") {
