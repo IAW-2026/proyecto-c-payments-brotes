@@ -17,7 +17,8 @@ export default async function BuyerPaymentsPage({
   if (!userId) {
     redirect("/sign-in");
   }
-  const { page, skip, take } = getPaginationParams(searchParams);
+  const { page: pageParam } = await searchParams;
+  const { page, skip, take } = getPaginationParams({ page: pageParam });
   const [payments, total] = await Promise.all([
     prisma.payment.findMany({
       where: { buyer_id: userId },
