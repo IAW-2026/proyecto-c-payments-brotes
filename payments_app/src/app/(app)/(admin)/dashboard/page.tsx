@@ -135,6 +135,12 @@ export default async function AdminDashboardPage({
         <h2 className="text-sm font-semibold text-verde-profundo uppercase tracking-wide">
           Todos los pagos
         </h2>
+        <Pagination
+          page={pPage}
+          totalPages={totalPaymentPages}
+          basePath="/dashboard"
+          pageParam="paymentsPage"
+        />
         <div className="bg-white border border-beige rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead>
@@ -174,12 +180,6 @@ export default async function AdminDashboardPage({
             </tbody>
           </table>
         </div>
-        <Pagination
-          page={pPage}
-          totalPages={totalPaymentPages}
-          basePath="/dashboard"
-          pageParam="paymentsPage"
-        />
       </section>
 
       {/* Tabla payouts paginada */}
