@@ -26,6 +26,9 @@ model Payment {
   buyer_email String?
 
   payout Payout?
+
+  mp_preference_id String?
+  mp_init_point    String?
 }
 
 model Payout {
