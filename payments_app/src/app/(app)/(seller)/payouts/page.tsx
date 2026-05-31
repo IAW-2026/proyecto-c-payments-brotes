@@ -10,7 +10,7 @@ import { Pagination } from "@/components/ui/Pagination";
 export default async function SellerPayoutsPage({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: Promise<{ page?: string }>;
 }) {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");

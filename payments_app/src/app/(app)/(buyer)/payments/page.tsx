@@ -11,7 +11,7 @@ import { Pagination } from "@/components/ui/Pagination";
 export default async function BuyerPaymentsPage({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: Promise<{ page?: string }>;
 }) {
   const { userId } = await auth();
   if (!userId) {
