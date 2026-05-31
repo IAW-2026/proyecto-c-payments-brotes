@@ -22,22 +22,22 @@ export function PaymentCard({
     <div
       onClick={onClick}
       className={`
-        bg-white border border-[#E8E2D6] rounded-xl px-5 py-4
+        bg-white border border-beige rounded-xl px-5 py-4
         flex items-center justify-between gap-4
         transition-shadow duration-150
-        ${onClick ? "cursor-pointer hover:shadow-md hover:border-[#D9D9D4]" : ""}
+        ${onClick ? "cursor-pointer hover:shadow-md hover:border-gris-piedra" : ""}
       `}
     >
       <div className="flex flex-col gap-1 min-w-0">
-        <span className="text-xs text-[#7BA05D] font-mono truncate">
+        <span className="text-xs text-verde-hoja font-mono truncate">
           {paymentId}
         </span>
-        <span className="text-xs text-[#A67C52] truncate">Orden {orderId}</span>
-        <span className="text-xs text-[#D9D9D4]">{formatDate(createdAt)}</span>
+        <span className="text-xs text-marron-tierra truncate">Orden {orderId}</span>
+        <span className="text-xs text-gris-piedra">{formatDate(createdAt)}</span>
       </div>
 
       <div className="flex flex-col items-end gap-2 shrink-0">
-        <span className="text-base font-semibold text-[#243B27]">
+        <span className="text-base font-semibold text-verde-profundo">
           {formatAmount(amount.value, amount.currency)}
         </span>
         <StatusBadge status={status} />

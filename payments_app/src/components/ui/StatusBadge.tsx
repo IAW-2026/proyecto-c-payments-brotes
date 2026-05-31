@@ -8,18 +8,18 @@ const statusConfig: Record<
 > = {
   pending: {
     label: "Pendiente",
-    classes: "bg-[#F5F2EA] text-[#A67C52] border border-[#E8E2D6]",
-    dot: "bg-[#A67C52] animate-pulse-subtle",
+    classes: "bg-arena text-marron-tierra border border-beige",
+    dot: "bg-marron-tierra animate-pulse-subtle",
   },
   approved: {
     label: "Aprobado",
-    classes: "bg-[#EAF3E6] text-[#4C6B3D] border border-[#CDE5C1]",
-    dot: "bg-[#7BA05D]",
+    classes: "bg-verde-suave text-verde-bosque border border-verde-brote",
+    dot: "bg-verde-hoja",
   },
   rejected: {
     label: "Rechazado",
-    classes: "bg-[#FDF0ED] text-[#E07A5F] border border-[#F5C9BF]",
-    dot: "bg-[#E07A5F]",
+    classes: "bg-[#FDF0ED] text-terracota border border-[#F5C9BF]",
+    dot: "bg-terracota",
   },
   paid: {
     label: "Acreditado",

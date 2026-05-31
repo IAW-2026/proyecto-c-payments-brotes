@@ -6,10 +6,10 @@ interface StatCardProps {
 
 export function StatCard({ label, value, sub }: StatCardProps) {
   return (
-    <div className="bg-white border border-[#E8E2D6] rounded-xl px-5 py-4 flex flex-col gap-1">
-      <span className="text-xs text-[#A67C52]">{label}</span>
-      <span className="text-2xl font-bold text-[#243B27]">{value}</span>
-      {sub && <span className="text-xs text-[#D9D9D4]">{sub}</span>}
+    <div className="bg-white border border-beige rounded-xl px-5 py-4 flex flex-col gap-1">
+      <span className="text-xs text-marron-tierra">{label}</span>
+      <span className="text-2xl font-bold text-verde-profundo">{value}</span>
+      {sub && <span className="text-xs text-gris-piedra">{sub}</span>}
     </div>
   );
 }
