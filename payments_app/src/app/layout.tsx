@@ -1,7 +1,6 @@
 // app/layout.tsx
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import Sidebar from "@/components/layout/Sidebar";
 import "@/app/globals.css";
 
 export const metadata: Metadata = {
@@ -16,9 +15,8 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="es">
-        <body className="flex h-screen overflow-hidden">
-          <Sidebar />
-          <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <body className="bg-arena text-verde-profundo h-screen overflow-hidden">
+          {children}
         </body>
       </html>
     </ClerkProvider>
