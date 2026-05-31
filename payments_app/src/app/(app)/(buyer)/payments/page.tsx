@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { PaymentList } from "@/components/ui/PaymentsList";
 import { redirect } from "next/navigation";
 //import { PaymentStatus } from "@/components/ui/PaymentsList";
-import { PaymentStatus } from "@/components/ui/StatusBadge";
+import { isPaymentStatus } from "@/lib/validator";
 import { getPaginationParams, PAGE_SIZE } from "@/lib/pagination";
 import { Pagination } from "@/components/ui/Pagination";
 
@@ -28,10 +28,6 @@ export default async function BuyerPaymentsPage({
     }),
     prisma.payment.count({ where: { buyer_id: userId } }),
   ]);
-
-  function isPaymentStatus(value: string): value is PaymentStatus {
-    return ["pending", "approved", "rejected"].includes(value);
-  }
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
   const serialized = payments.map((p) => ({

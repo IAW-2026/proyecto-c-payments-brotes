@@ -3,10 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PayoutList } from "@/components/ui/PayoutList";
 import { redirect } from "next/navigation";
-import { PayoutStatus } from "@/components/ui/StatusBadge";
 import { getPaginationParams, PAGE_SIZE } from "@/lib/pagination";
 import { Pagination } from "@/components/ui/Pagination";
-
+import { isPayoutStatus } from "@/lib/validator";
 export default async function SellerPayoutsPage({
   searchParams,
 }: {
@@ -26,9 +25,6 @@ export default async function SellerPayoutsPage({
     prisma.payout.count({ where: { seller_id: userId } }),
   ]);
 
-  function isPayoutStatus(value: string): value is PayoutStatus {
-    return ["pending", "paid"].includes(value);
-  }
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   const serialized = payouts.map((p) => ({
