@@ -5,6 +5,8 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { StatCard } from "@/components/ui/StatCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { BadgeStatus } from "@/components/ui/StatusBadge";
+import { getPaginationParams, PAGE_SIZE } from "@/lib/pagination";
+import { Pagination } from "@/components/ui/Pagination";
 
 function formatAmount(value: number) {
   return new Intl.NumberFormat("es-AR", {
@@ -22,19 +24,28 @@ function formatDate(date: Date) {
   }).format(date);
 }
 
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
   const { userId, sessionClaims } = await auth();
   if (!userId) redirect("/sign-in");
 
-  /*  const role = sessionClaims?.publicMetadata?.role as string | undefined;
-  if (role !== "admin") redirect("/sign-in");
-*/
+  const { page: pageParam } = await searchParams;
+  const { page, skip, take } = getPaginationParams({ page: pageParam });
   // Pagos
-  const payments = await prisma.payment.findMany({
-    orderBy: { createdAt: "desc" },
+  const [payments, totalPayments] = await Promise.all([
+    prisma.payment.findMany({ orderBy: { createdAt: "desc" }, skip, take }),
+    prisma.payment.count(),
+  ]);
+  const totalPages = Math.ceil(totalPayments / PAGE_SIZE);
+  // stats las calculás sobre el total — necesitás un aggregate aparte:
+  const stats = await prisma.payment.aggregate({
+    _sum: { amount: true },
+    _avg: { amount: true },
+    _count: true,
   });
-
-  const totalPayments = payments.length;
   const totalAmountPayments = payments.reduce((acc, p) => acc + p.amount, 0);
   const avgAmount = totalPayments > 0 ? totalAmountPayments / totalPayments : 0;
 
