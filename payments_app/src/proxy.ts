@@ -1,20 +1,28 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
-/*
-const isProtectedRoute = createRouteMatcher([
-  "/(buyer)(.*)",
-  "/(seller)(.*)",
-  "/(admin)(.*)",
-]);
- */
+
+// Rate limiting en memoria — solo para una instancia (desarrollo/staging)
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT = 30; // requests
+const RATE_WINDOW = 60_000; // 1 minuto en ms
+
+function checkRateLimit(key: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(key);
+
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(key, { count: 1, resetAt: now + RATE_WINDOW });
+    return true;
+  }
+
+  if (entry.count >= RATE_LIMIT) return false;
+
+  entry.count++;
+  return true;
+}
+
 const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
-/*
-const routeRoleMap: { matcher: (req: NextRequest) => boolean; role: string }[] =
-  [
-    { matcher: createRouteMatcher(["/(buyer)(.*)"]), role: "buyer" },
-    { matcher: createRouteMatcher(["/(seller)(.*)"]), role: "seller" },
-    { matcher: createRouteMatcher(["/(admin)(.*)"]), role: "admin" },
-    ]; */
+
 const isProtectedRoute = createRouteMatcher([
   "/payments(.*)",
   "/payouts(.*)",
@@ -41,6 +49,14 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 
     if (!token || token !== process.env.SERVICE_API_KEY) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    // Rate limit por IP
+    const ip = req.headers.get("x-forwarded-for") ?? "unknown";
+    if (!checkRateLimit(ip)) {
+      return NextResponse.json(
+        { error: "Too many requests." },
+        { status: 429 },
+      );
     }
     return NextResponse.next();
   }
