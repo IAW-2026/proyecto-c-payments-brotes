@@ -198,7 +198,7 @@ export default async function AdminDashboardPage({
           page={pPage}
           totalPages={totalPaymentPages}
           basePath="/dashboard"
-          pageParam="paymentsPage"
+          pageParam="paymentspage"
         />
         <div className="bg-white border border-beige rounded-xl overflow-hidden">
           <table className="w-full text-sm">
@@ -265,7 +265,7 @@ export default async function AdminDashboardPage({
           page={oPage}
           totalPages={totalPayoutPages}
           basePath="/dashboard"
-          pageParam="payoutsPage"
+          pageParam="payoutspage"
         />
         <div className="bg-white border border-beige rounded-xl overflow-hidden">
           <table className="w-full text-sm">
