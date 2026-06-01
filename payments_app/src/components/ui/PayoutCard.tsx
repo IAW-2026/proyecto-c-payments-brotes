@@ -9,6 +9,7 @@ interface PayoutCardProps {
   createdAt: string;
   buyerEmail?: string;
   onClick?: () => void;
+  children?: React.ReactNode;
 }
 
 export function PayoutCard({
@@ -19,6 +20,7 @@ export function PayoutCard({
   createdAt,
   buyerEmail,
   onClick,
+  children,
 }: PayoutCardProps) {
   return (
     <div
@@ -28,34 +30,36 @@ export function PayoutCard({
       onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } } : undefined}
       className={`
         bg-white border border-beige rounded-xl px-5 py-4
-        flex items-center justify-between gap-4
         transition-shadow duration-150
         ${onClick ? "cursor-pointer hover:shadow-md hover:border-gris-piedra" : ""}
       `}
     >
-      <div className="flex flex-col gap-1 min-w-0">
-        <span className="text-xs text-verde-hoja font-mono truncate">
-          {payoutId}
-        </span>
-        <span className="text-xs text-marron-tierra truncate">
-          Pago {paymentId}
-          {buyerEmail && (
-            <span className="text-xs text-marron-tierra truncate">
-              {buyerEmail}
-            </span>
-          )}
-        </span>
-        <span className="text-xs text-gris-piedra">
-          {formatDate(createdAt)}
-        </span>
-      </div>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col gap-1 min-w-0">
+          <span className="text-xs text-verde-hoja font-mono truncate">
+            {payoutId}
+          </span>
+          <span className="text-xs text-marron-tierra truncate">
+            Pago {paymentId}
+            {buyerEmail && (
+              <span className="text-xs text-marron-tierra truncate">
+                {buyerEmail}
+              </span>
+            )}
+          </span>
+          <span className="text-xs text-gris-piedra">
+            {formatDate(createdAt)}
+          </span>
+        </div>
 
-      <div className="flex flex-col items-end gap-2 shrink-0">
-        <span className="text-base font-semibold text-verde-profundo">
-          {formatAmount(amount.value, amount.currency)}
-        </span>
-        <StatusBadge status={status} />
+        <div className="flex flex-col items-end gap-2 shrink-0">
+          <span className="text-base font-semibold text-verde-profundo">
+            {formatAmount(amount.value, amount.currency)}
+          </span>
+          <StatusBadge status={status} />
+        </div>
       </div>
+      {children}
     </div>
   );
 }

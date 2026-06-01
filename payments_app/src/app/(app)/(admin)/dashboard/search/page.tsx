@@ -4,8 +4,8 @@ import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FilterBar } from "@/components/ui/FilterBar";
 import { Pagination } from "@/components/ui/Pagination";
-import { PayoutList } from "@/components/ui/PayoutList";
 import { AdminPaymentList } from "./AdminPaymentList";
+import { AdminPayoutList } from "./AdminPayoutList";
 import { getPaginationParams, PAGE_SIZE } from "@/lib/pagination";
 import { isPaymentStatus, isPayoutStatus } from "@/lib/validator";
 import {
@@ -204,7 +204,7 @@ export default async function DashboardSearchPage({
           basePath="/dashboard/search"
           pageParam="payoutspage"
         />
-        <PayoutList payouts={serializedPayouts} />
+        <AdminPayoutList payouts={serializedPayouts} />
       </section>
     </main>
   );

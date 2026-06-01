@@ -81,3 +81,16 @@ export const UpdatePaymentStatusSchema = z.object({
     error: "status debe ser 'approved' o 'rejected'.",
   }),
 });
+
+export const PayoutIdSchema = z.object({
+  sellerId: z
+    .string({ error: "ID es obligatorio." })
+    .trim()
+    .min(1, "ID no puede estar vacío."),
+});
+
+export const UpdatePayoutStatusSchema = z.object({
+  status: z.enum(["paid"], {
+    error: "status debe ser 'paid'.",
+  }),
+});
