@@ -1,17 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createPreference } from "@/services/mercadopagoService";
+import { CreatePaymentSchema } from "@/lib/validator";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { order_id, buyer_id, seller_id, amount, currency } = body;
-    if (!order_id || !buyer_id || !seller_id || !amount) {
+
+    const result = CreatePaymentSchema.safeParse(body);
+    if (!result.success) {
       return NextResponse.json(
-        { error: "Faltan campos obligatorios." },
+        {
+          error: "Datos inválidos.",
+          details: result.error.issues.map((e) => ({
+            field: e.path.join("."),
+            message: e.message,
+          })),
+        },
         { status: 400 },
       );
     }
+
+    const {
+      order_id,
+      buyer_id,
+      seller_id,
+      amount,
+      currency,
+      description,
+      buyer_email,
+    } = result.data;
 
     const payment = await prisma.payment.create({
       data: {
@@ -19,19 +37,21 @@ export async function POST(req: NextRequest) {
         buyer_id,
         seller_id,
         amount,
-        currency: currency ?? "ARS",
+        currency,
         status: "pending",
-        buyer_email: body.buyer_email ?? null, //corregir es algo que se puede sacar de la BD
+        description: description ?? null,
+        buyer_email: buyer_email || null,
       },
     });
+
     let mpData = {};
-    if (body.buyer_email) {
+    if (buyer_email) {
       const preference = await createPreference({
         paymentId: payment.id,
-        title: `Orden ${body.order_id}`,
-        amount: body.amount,
-        currency: body.currency ?? "ARS",
-        buyerEmail: body.buyer_email,
+        title: `Orden ${order_id}`,
+        amount,
+        currency,
+        buyerEmail: buyer_email,
       });
       await prisma.payment.update({
         where: { id: payment.id },
@@ -45,6 +65,7 @@ export async function POST(req: NextRequest) {
         mp_init_point: preference.init_point,
       };
     }
+
     return NextResponse.json(
       {
         payment_id: payment.id,
