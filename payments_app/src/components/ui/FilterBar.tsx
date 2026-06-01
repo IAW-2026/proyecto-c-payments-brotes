@@ -22,6 +22,8 @@ export interface FilterBarProps {
   currentDay?: string;
   currentMonth?: string;
   paramPrefix?: string;
+  currentEmailSearch?: string;
+  emailSearchPlaceholder?: string;
 }
 
 const DEBOUNCE_MS = 350;
@@ -36,6 +38,8 @@ export function FilterBar({
   currentDay = "",
   currentMonth = "",
   paramPrefix = "",
+  currentEmailSearch,
+  emailSearchPlaceholder,
 }: FilterBarProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -43,7 +47,8 @@ export function FilterBar({
 
   const [searchInput, setSearchInput] = useState(currentSearch);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
+  const [emailInput, setEmailInput] = useState(currentEmailSearch ?? "");
+  const debounceEmailRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Sincronizar si el Server Component resetea currentSearch (limpiar filtros)
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -86,6 +91,29 @@ export function FilterBar({
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, []);
+  // Sincronizar con reset externo
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setEmailInput(currentEmailSearch ?? "");
+  }, [currentEmailSearch]);
+
+  const handleEmailChange = useCallback(
+    (value: string) => {
+      setEmailInput(value);
+      if (debounceEmailRef.current) clearTimeout(debounceEmailRef.current);
+      debounceEmailRef.current = setTimeout(() => {
+        updateParam("buyerEmail", value.trim());
+      }, DEBOUNCE_MS);
+    },
+    [updateParam],
+  );
+
+  // Limpiar timeout al desmontar
+  useEffect(() => {
+    return () => {
+      if (debounceEmailRef.current) clearTimeout(debounceEmailRef.current);
+    };
+  }, []);
 
   const updateDay = useCallback(
     (value: string) => {
@@ -126,6 +154,7 @@ export function FilterBar({
     currentSort !== "createdAt" ||
     currentOrder !== "desc" ||
     !!currentSearch ||
+    !!currentEmailSearch ||
     !!currentDay ||
     !!currentMonth;
 
@@ -139,7 +168,15 @@ export function FilterBar({
         onChange={(e) => handleSearchChange(e.target.value)}
         className="w-full text-sm rounded-lg border border-beige bg-white text-verde-profundo px-3 py-1.5 placeholder:text-marron-tierra/50 focus:outline-none focus:ring-2 focus:ring-verde-hoja"
       />
-
+      <input
+        type="email"
+        value={emailInput}
+        placeholder={
+          emailSearchPlaceholder ?? "Buscar por email del comprador..." //rever
+        }
+        onChange={(e) => handleEmailChange(e.target.value)}
+        className="w-full text-sm rounded-lg border border-beige bg-white text-verde-profundo px-3 py-1.5 placeholder:text-marron-tierra/50 focus:outline-none focus:ring-2 focus:ring-verde-hoja"
+      />
       {/* Filtros de select + fechas */}
       <div className="flex flex-wrap items-center gap-2">
         {/* Estado */}
@@ -222,6 +259,7 @@ export function FilterBar({
             onClick={() => {
               if (debounceRef.current) clearTimeout(debounceRef.current);
               setSearchInput("");
+              setEmailInput("");
               router.replace(pathname, { scroll: false });
             }}
             className="text-xs text-marron-tierra underline underline-offset-2 hover:text-verde-profundo transition-colors ml-1"

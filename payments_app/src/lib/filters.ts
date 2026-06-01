@@ -98,3 +98,8 @@ export function parseDateRange(
 ): { gte: Date; lte: Date } | undefined {
   return parseDayFilter(day) ?? parseMonthFilter(month);
 }
+
+/** Parsea un email de búsqueda, devuelve undefined si está vacío */
+export function parseEmailSearch(value?: string): string | undefined {
+  return parseSearch(value);
+}
