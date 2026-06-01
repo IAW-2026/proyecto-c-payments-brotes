@@ -9,17 +9,36 @@ const fields = [
   { label: "Moneda", name: "currency", type: "text" },
   { label: "Email del comprador", name: "buyer_email", type: "email" },
 ];
-
+const PRODUCTOS = [
+  "Monstera Deliciosa mediana",
+  "Kit de herramientas para jardinería indoor",
+  "Olivo joven premium para exterior",
+  "Pack x3 cactus decorativos",
+  "Fertilizante orgánico líquido",
+  "Ficus Lyrata grande",
+  "Suculentas variadas x5",
+  "Maceta de cerámica artesanal",
+  "Tierra preparada para interior x5kg",
+  "Lavanda en maceta colgante",
+  "Pothos dorado enredadera",
+  "Sustrato mineral para cactus x3kg",
+];
+function randomDescription(): string {
+  const shuffled = [...PRODUCTOS].sort(() => Math.random() - 0.5);
+  const count = Math.floor(Math.random() * 3) + 1; // 1, 2 o 3
+  return shuffled.slice(0, count).join(", ");
+}
 function randomAmount() {
   return String(Math.floor(Math.random() * 90000) + 1000);
 }
 
-function generateTestData() {
+function generateTestData(buyerEmail: string) {
   return {
     order_id: `order-${Date.now()}`,
     amount: randomAmount(),
     currency: "ARS",
-    buyer_email: `test_${Math.random().toString(36).slice(2, 7)}@testuser.com`,
+    buyer_email: buyerEmail,
+    description: randomDescription(),
   };
 }
 
@@ -27,13 +46,15 @@ type FormValues = Record<string, string>;
 
 export function TestForm({
   buyerId,
+  buyerEmail,
   sellers,
 }: {
   buyerId: string;
+  buyerEmail: string;
   sellers: Seller[];
 }) {
   const [values, setValues] = useState<FormValues>(() => ({
-    ...generateTestData(),
+    ...generateTestData(buyerEmail),
     buyer_id: buyerId,
     seller_id: sellers[0]?.id ?? "",
   }));
@@ -48,7 +69,7 @@ export function TestForm({
 
   function handleFill() {
     setValues({
-      ...generateTestData(),
+      ...generateTestData(buyerEmail),
       buyer_id: buyerId,
       seller_id: sellers[0]?.id ?? "",
     });

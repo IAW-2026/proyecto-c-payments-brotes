@@ -6,6 +6,8 @@ export default async function TestPage() {
   const { userId } = await auth();
 
   const client = await clerkClient();
+  const buyerUser = await client.users.getUser(userId!);
+  const buyerEmail = buyerUser.emailAddresses[0]?.emailAddress ?? "";
   const { data: users } = await client.users.getUserList({ limit: 100 });
   const sellers = users
     .filter((u) =>
@@ -22,7 +24,7 @@ export default async function TestPage() {
         title="Simulador de pago"
         subtitle="Solo para pruebas — no usar en producción"
       />
-      <TestForm buyerId={userId!} sellers={sellers} />
+      <TestForm buyerId={userId!} buyerEmail={buyerEmail} sellers={sellers} />
     </main>
   );
 }
