@@ -128,7 +128,27 @@ export default function Sidebar({ role }: SidebarProps) {
         ]
       : []),
     ...(role === "admin"
-      ? [{ href: "/dashboard", label: "Panel admin", icon: <IconDashboard /> }]
+      ? [
+          {
+            href: "/dashboard/stats",
+            label: "Estadísticas",
+            icon: <IconDashboard />,
+          },
+          {
+            href: "/dashboard/search",
+            label: "Búsqueda",
+            icon: <IconPayments />,
+          },
+        ]
+      : []),
+    ...(role === "seller"
+      ? [
+          {
+            href: "/payouts/stats",
+            label: "Estadísticas",
+            icon: <IconDashboard />,
+          },
+        ]
       : []),
   ];
 
