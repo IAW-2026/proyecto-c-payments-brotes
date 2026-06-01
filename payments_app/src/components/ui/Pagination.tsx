@@ -1,10 +1,12 @@
-import Link from "next/link";
+"use client";
+
+import { useSearchParams } from "next/navigation";
 
 type Props = {
   page: number;
   totalPages: number;
   basePath: string;
-  pageParam?: string; // default "page"
+  pageParam?: string;
 };
 
 export function Pagination({
@@ -13,17 +15,25 @@ export function Pagination({
   basePath,
   pageParam = "page",
 }: Props) {
+  const searchParams = useSearchParams();
+
   if (totalPages <= 1) return null;
+
+  function buildHref(targetPage: number) {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set(pageParam, String(targetPage));
+    return `${basePath}?${params.toString()}`;
+  }
+
   return (
     <div className="flex items-center justify-between mt-6 text-sm">
       {page > 1 ? (
-        <Link
-          href={`${basePath}?${pageParam}=${page - 1}`}
-          scroll={false}
+        <a
+          href={buildHref(page - 1)}
           className="px-3 py-1.5 rounded-lg border border-verde-brote text-verde-bosque hover:bg-verde-brote transition-colors"
         >
           ← Anterior
-        </Link>
+        </a>
       ) : (
         <span />
       )}
@@ -31,13 +41,12 @@ export function Pagination({
         Página {page} de {totalPages}
       </span>
       {page < totalPages ? (
-        <Link
-          href={`${basePath}?${pageParam}=${page + 1}`}
-          scroll={false}
+        <a
+          href={buildHref(page + 1)}
           className="px-3 py-1.5 rounded-lg border border-verde-brote text-verde-bosque hover:bg-verde-brote transition-colors"
         >
           Siguiente →
-        </Link>
+        </a>
       ) : (
         <span />
       )}
