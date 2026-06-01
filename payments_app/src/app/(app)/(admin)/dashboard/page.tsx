@@ -13,7 +13,6 @@ import {
   parseOrder,
   parsePaymentStatus,
   parsePayoutStatus,
-  parseEmailSearch,
   parseSearch,
   parseDateRange,
   statusForPrisma,
@@ -37,7 +36,6 @@ export default async function AdminDashboardPage({
   const pCurrentDay = sp["p_day"] ?? "";
   const pCurrentMonth = sp["p_month"] ?? "";
   const pDateRange = parseDateRange(sp["p_day"], sp["p_month"]);
-  const pCurrentEmailSearch = parseEmailSearch(sp["p_emailSearch"]);
 
   // Filtros tabla acreditaciones (prefijo o_)
   const oCurrentStatus = parsePayoutStatus(sp["o_status"]);
@@ -73,13 +71,8 @@ export default async function AdminDashboardPage({
           },
         },
         { id: { contains: pCurrentSearch, mode: "insensitive" as const } },
+        { buyer_email: { contains: pCurrentSearch, mode: "insensitive" as const } },
       ],
-    }),
-    ...(pCurrentEmailSearch && {
-      buyer_email: {
-        contains: pCurrentEmailSearch,
-        mode: "insensitive" as const,
-      },
     }),
     ...(pDateRange && { createdAt: pDateRange }),
   };
@@ -89,7 +82,10 @@ export default async function AdminDashboardPage({
       status: statusForPrisma(oCurrentStatus),
     }),
     ...(oCurrentSearch && {
-      seller_email: { contains: oCurrentSearch, mode: "insensitive" as const },
+      OR: [
+        { seller_email: { contains: oCurrentSearch, mode: "insensitive" as const } },
+        { buyer_email: { contains: oCurrentSearch, mode: "insensitive" as const } },
+      ],
     }),
     ...(oDateRange && { createdAt: oDateRange }),
   };
@@ -196,12 +192,10 @@ export default async function AdminDashboardPage({
           currentStatus={pCurrentStatus}
           currentSort={pCurrentSort}
           currentOrder={pCurrentOrder}
-          searchPlaceholder="Buscar por descripción o ID..."
+          searchPlaceholder="Buscar por descripción, ID o email del comprador..."
           currentSearch={pCurrentSearch ?? ""}
           currentDay={pCurrentDay}
           currentMonth={pCurrentMonth}
-          currentEmailSearch={pCurrentEmailSearch ?? ""}
-          emailSearchPlaceholder="Buscar por email del comprador"
           paramPrefix="p_"
         />
         <Pagination
@@ -269,7 +263,7 @@ export default async function AdminDashboardPage({
           currentStatus={oCurrentStatus}
           currentSort={oCurrentSort}
           currentOrder={oCurrentOrder}
-          searchPlaceholder="Buscar por email del seller..."
+          searchPlaceholder="Buscar por email del vendedor o comprador..."
           currentSearch={oCurrentSearch ?? ""}
           currentDay={oCurrentDay}
           currentMonth={oCurrentMonth}

@@ -13,7 +13,6 @@ import {
   parsePayoutStatus,
   parseSearch,
   parseDateRange,
-  parseEmailSearch,
   statusForPrisma,
 } from "@/lib/filters";
 
@@ -33,7 +32,6 @@ export default async function SellerPayoutsPage({
   const currentSearch = parseSearch(sp.search);
   const currentDay = sp.day ?? "";
   const currentMonth = sp.month ?? "";
-  const currentEmailSearch = parseEmailSearch(sp.emailSearch);
   const dateRange = parseDateRange(sp.day, sp.month);
 
   const { page, skip, take } = getPaginationParams({ page: sp.page });
@@ -44,15 +42,12 @@ export default async function SellerPayoutsPage({
       status: statusForPrisma(currentStatus),
     }),
     ...(currentSearch && {
-      payment_id: { contains: currentSearch, mode: "insensitive" as const },
+      OR: [
+        { payment_id: { contains: currentSearch, mode: "insensitive" as const } },
+        { buyer_email: { contains: currentSearch, mode: "insensitive" as const } },
+      ],
     }),
     ...(dateRange && { createdAt: dateRange }),
-    ...(currentEmailSearch && {
-      buyer_email: {
-        contains: currentEmailSearch,
-        mode: "insensitive" as const,
-      },
-    }),
   };
 
   const [payouts, total] = await Promise.all([
@@ -94,12 +89,10 @@ export default async function SellerPayoutsPage({
           currentStatus={currentStatus}
           currentSort={currentSort}
           currentOrder={currentOrder}
-          searchPlaceholder="Buscar por ID de pago..."
+          searchPlaceholder="Buscar por ID de pago o email del comprador..."
           currentSearch={currentSearch ?? ""}
           currentDay={currentDay}
           currentMonth={currentMonth}
-          currentEmailSearch={currentEmailSearch ?? ""}
-          emailSearchPlaceholder="Buscar por email del comprador..."
         />
       </div>
 
