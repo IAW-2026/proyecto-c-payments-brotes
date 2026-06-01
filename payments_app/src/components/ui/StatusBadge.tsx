@@ -18,13 +18,13 @@ const statusConfig: Record<
   },
   rejected: {
     label: "Rechazado",
-    classes: "bg-[#FDF0ED] text-terracota border border-[#F5C9BF]",
+    classes: "bg-arena text-terracota border border-beige",
     dot: "bg-terracota",
   },
   paid: {
     label: "Acreditado",
-    classes: "bg-[#E6F0FA] text-[#2E6EA6] border border-[#B9D6F0]",
-    dot: "bg-[#2E6EA6]",
+    classes: "bg-beige text-verde-profundo border border-gris-piedra",
+    dot: "bg-verde-profundo",
   },
 };
 

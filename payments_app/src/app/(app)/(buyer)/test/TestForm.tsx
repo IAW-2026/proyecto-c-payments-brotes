@@ -133,7 +133,7 @@ export function TestForm({
           name="buyer_id"
           value={buyerId}
           disabled
-          className="w-full px-3 py-2 rounded-lg border border-verde-brote bg-slate-50 text-verde-profundo/50 text-sm"
+          className="w-full px-3 py-2 rounded-lg border border-verde-brote bg-arena text-verde-profundo/50 text-sm"
         />
       </div>
       {fields.map(({ label, name, type }) => (
@@ -161,7 +161,7 @@ export function TestForm({
       </button>
 
       {error && (
-        <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+        <div className="p-4 rounded-lg bg-arena border border-beige text-terracota text-sm">
           {error}
         </div>
       )}

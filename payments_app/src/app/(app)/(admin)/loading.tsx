@@ -9,8 +9,8 @@ export default function AdminLoading() {
         ))}
       </div>
 
-      <SectionSkeleton title="Pagos recientes" rows={5} />
-      <SectionSkeleton title="Liquidaciones recientes" rows={5} />
+      <SectionSkeleton rows={5} />
+      <SectionSkeleton rows={5} />
     </div>
   );
 }
@@ -24,7 +24,7 @@ function StatCardSkeleton() {
   );
 }
 
-function SectionSkeleton({ title, rows }: { title: string; rows: number }) {
+function SectionSkeleton({ rows }: { rows: number }) {
   return (
     <div className="mb-10">
       <div className="h-5 w-40 rounded bg-verde-brote animate-pulse mb-4" />

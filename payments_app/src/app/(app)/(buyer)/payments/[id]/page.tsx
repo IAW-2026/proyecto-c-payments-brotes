@@ -81,7 +81,7 @@ export default async function PaymentDetailPage({
               href={payment.mp_init_point}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full text-center py-2.5 px-4 bg-verde-profundo text-white text-sm font-medium rounded-lg hover:bg-[#1a2c1d] transition-colors"
+              className="w-full text-center py-2.5 px-4 bg-verde-profundo text-white text-sm font-medium rounded-lg hover:bg-verde-oscuro transition-colors"
             >
               Continuar pago en Mercado Pago →
             </a>

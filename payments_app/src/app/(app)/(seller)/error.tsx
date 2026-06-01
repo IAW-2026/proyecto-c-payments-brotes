@@ -29,7 +29,7 @@ export default function SellerError({ error, reset }: ErrorProps) {
       )}
       <button
         onClick={reset}
-        className="mt-2 px-4 py-2 rounded-lg bg-verde-profundo hover:bg-[#1a2c1d] active:scale-95 transition text-white text-sm font-medium"
+        className="mt-2 px-4 py-2 rounded-lg bg-verde-profundo hover:bg-verde-oscuro active:scale-95 transition text-white text-sm font-medium"
       >
         Intentar de nuevo
       </button>

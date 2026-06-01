@@ -99,7 +99,4 @@ export function parseDateRange(
   return parseDayFilter(day) ?? parseMonthFilter(month);
 }
 
-/** Parsea un email de búsqueda, devuelve undefined si está vacío */
-export function parseEmailSearch(value?: string): string | undefined {
-  return parseSearch(value);
-}
+

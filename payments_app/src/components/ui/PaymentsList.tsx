@@ -4,8 +4,6 @@ import { useRouter } from "next/navigation";
 import { PaymentCard } from "@/components/ui/PaymentCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PaymentStatus } from "./StatusBadge";
-//corregir esto, buscar donde se define correctamente PaymentStatus
-//export type PaymentStatus = "pending" | "approved" | "rejected";
 
 interface Payment {
   id: string;
