@@ -11,23 +11,41 @@ function verifyMPSignature(req: NextRequest): boolean {
 
   if (!xSignature) return false;
 
+  // Fix #2: usar indexOf para no cortar si el valor tiene "=" internamente
   const parts = Object.fromEntries(
-    xSignature.split(",").map((p) => p.split("=") as [string, string]),
+    xSignature.split(",").map((p) => {
+      const idx = p.indexOf("=");
+      return [p.slice(0, idx).trim(), p.slice(idx + 1).trim()];
+    }),
   );
   const ts = parts["ts"];
   const v1 = parts["v1"];
   if (!ts || !v1) return false;
 
-  const manifest = [
-    dataId ? `id:${dataId}` : null,
-    xRequestId ? `request-id:${xRequestId}` : null,
-    `ts:${ts}`,
-  ]
-    .filter(Boolean)
-    .join(";");
+  // Fix #1: el manifest debe terminar con ";" según la doc de MP
+  // template: id:[data.id_url];request-id:[x-request-id_header];ts:[ts_header];
+  const manifest =
+    [
+      dataId ? `id:${dataId}` : null,
+      xRequestId ? `request-id:${xRequestId}` : null,
+      `ts:${ts}`,
+    ]
+      .filter(Boolean)
+      .join(";") + ";";
 
   const secret = process.env.MP_WEBHOOK_SECRET!;
   const expected = createHmac("sha256", secret).update(manifest).digest("hex");
+
+  // Log de diagnóstico: muestra exactamente qué se está firmando y qué espera MP
+  console.log("[MP Webhook] diagnóstico de firma:", {
+    dataId,
+    xRequestId,
+    ts,
+    manifest, // lo que estamos firmando nosotros
+    expected, // lo que nuestro HMAC produce
+    receivedV1: v1, // lo que MP nos mandó
+    match: expected === v1,
+  });
 
   return expected === v1;
 }
@@ -50,6 +68,7 @@ export async function POST(req: NextRequest) {
     });
     console.log("[MP Webhook] query params:", { topic, id: urlId });
     console.log("[MP Webhook] raw body:", rawBody || "(vacío)");
+
     // merchant_order no tiene firma — ignorar directamente sin verificar
     if (topic === "merchant_order") {
       console.log("[MP Webhook] ignorando merchant_order");
@@ -65,29 +84,43 @@ export async function POST(req: NextRequest) {
     }
 
     // Intentar obtener paymentId del body (nuevo formato) o URL params (legacy)
-    let paymentId: string | string[] | undefined;
+    let paymentId: string | undefined;
 
     if (rawBody.trim()) {
       try {
         const body = JSON.parse(rawBody);
         // Nuevo formato: body.type indica si es notificación de pago
         if (body.type && body.type !== "payment") {
+          console.log(
+            "[MP Webhook] ignorando notificación de tipo:",
+            body.type,
+          );
           return NextResponse.json({ received: true });
         }
         paymentId = body.data?.id;
       } catch {
         // body no es JSON o está vacío — usar fallback legacy
+        console.log(
+          "[MP Webhook] body no es JSON válido, usando fallback legacy",
+        );
       }
     }
-    console.log("[MP Webhook] paymentId resuelto:", paymentId);
+
     // Legacy: topic e id vienen como query params
     if (!paymentId) {
       if (topic === "payment" && urlId) {
         paymentId = urlId;
-      } else if (topic === "merchant_order" && urlId) {
-        return NextResponse.json({ received: true });
+      } else if (!topic && !urlId) {
+        console.log(
+          "[MP Webhook] sin paymentId resuelto — topic:",
+          topic,
+          "urlId:",
+          urlId,
+        );
       }
     }
+
+    console.log("[MP Webhook] paymentId resuelto:", paymentId);
 
     if (!paymentId) {
       return NextResponse.json({ error: "No payment id" }, { status: 400 });
@@ -95,10 +128,10 @@ export async function POST(req: NextRequest) {
 
     // Consultamos el pago directamente a MP
     const payment = new Payment(client);
-    const mpPayment = await payment.get({ id: paymentId as string });
+    const mpPayment = await payment.get({ id: paymentId });
 
-    const externalReference = mpPayment.external_reference; // nuestro paymentId
-    const status = mpPayment.status; // approved, rejected, pending
+    const externalReference = mpPayment.external_reference;
+    const status = mpPayment.status;
 
     if (!externalReference) {
       return NextResponse.json(
@@ -111,6 +144,7 @@ export async function POST(req: NextRequest) {
       status: mpPayment.status,
       external_reference: mpPayment.external_reference,
     });
+
     const statusMap: Record<string, string> = {
       approved: "approved",
       rejected: "rejected",
@@ -124,6 +158,7 @@ export async function POST(req: NextRequest) {
       where: { id: externalReference },
       data: { status: newStatus },
     });
+
     if (newStatus === "approved") {
       await prisma.payout.create({
         data: {
@@ -137,6 +172,7 @@ export async function POST(req: NextRequest) {
         },
       });
     }
+
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error("[POST /api/webhooks/mercadopago]", error);
