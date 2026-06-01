@@ -75,3 +75,9 @@ export const PaymentIdSchema = z.object({
     .trim()
     .min(1, "id no puede estar vacío."),
 });
+
+export const UpdatePaymentStatusSchema = z.object({
+  status: z.enum(["approved", "rejected"], {
+    error: "status debe ser 'approved' o 'rejected'.",
+  }),
+});
