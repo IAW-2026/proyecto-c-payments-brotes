@@ -6,27 +6,53 @@ import { redirect } from "next/navigation";
 import { getPaginationParams, PAGE_SIZE } from "@/lib/pagination";
 import { Pagination } from "@/components/ui/Pagination";
 import { isPayoutStatus } from "@/lib/validator";
+import { FilterBar } from "@/components/ui/FilterBar";
+import {
+  parseSort,
+  parseOrder,
+  parsePayoutStatus,
+  statusForPrisma,
+} from "@/lib/filters";
+
 export default async function SellerPayoutsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    status?: string;
+    sort?: string;
+    order?: string;
+  }>;
 }) {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
-  const { page: pageParam } = await searchParams;
+
+  const { page: pageParam, status, sort, order } = await searchParams;
+
+  const currentStatus = parsePayoutStatus(status);
+  const currentSort = parseSort(sort);
+  const currentOrder = parseOrder(order);
+
   const { page, skip, take } = getPaginationParams({ page: pageParam });
+
+  const where = {
+    seller_id: userId,
+    ...(statusForPrisma(currentStatus) && {
+      status: statusForPrisma(currentStatus),
+    }),
+  };
+
   const [payouts, total] = await Promise.all([
     prisma.payout.findMany({
-      where: { seller_id: userId },
-      orderBy: { createdAt: "desc" },
+      where,
+      orderBy: { [currentSort]: currentOrder },
       skip,
       take,
     }),
-    prisma.payout.count({ where: { seller_id: userId } }),
+    prisma.payout.count({ where }),
   ]);
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
-
   const serialized = payouts.map((p) => ({
     ...p,
     createdAt: p.createdAt.toISOString(),
@@ -38,11 +64,25 @@ export default async function SellerPayoutsPage({
       <PageHeader
         title="Mis acreditaciones"
         subtitle={
-          serialized.length > 0
-            ? `${serialized.length} acreditación${serialized.length !== 1 ? "es" : ""} registrada${serialized.length !== 1 ? "s" : ""}`
+          total > 0
+            ? `${total} acreditación${total !== 1 ? "es" : ""} registrada${total !== 1 ? "s" : ""}`
             : undefined
         }
       />
+
+      <div className="mb-4">
+        <FilterBar
+          statusOptions={[
+            { value: "all", label: "Todas" },
+            { value: "pending", label: "Pendiente" },
+            { value: "paid", label: "Acreditada" },
+          ]}
+          currentStatus={currentStatus}
+          currentSort={currentSort}
+          currentOrder={currentOrder}
+        />
+      </div>
+
       <Pagination page={page} totalPages={totalPages} basePath="/payouts" />
       <PayoutList payouts={serialized} />
     </main>

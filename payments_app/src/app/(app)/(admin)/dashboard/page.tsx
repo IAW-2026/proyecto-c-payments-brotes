@@ -7,16 +7,53 @@ import { StatusBadge, BadgeStatus } from "@/components/ui/StatusBadge";
 import { getPaginationParams, PAGE_SIZE } from "@/lib/pagination";
 import { Pagination } from "@/components/ui/Pagination";
 import { formatAmount, formatDate } from "@/lib/format";
-
+import { FilterBar } from "@/components/ui/FilterBar";
+import {
+  parseSort,
+  parseOrder,
+  parsePaymentStatus,
+  parsePayoutStatus,
+  statusForPrisma,
+} from "@/lib/filters";
+import { Suspense } from "react";
 export default async function AdminDashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ paymentsPage?: string; payoutsPage?: string }>;
+  searchParams: Promise<{
+    paymentspage?: string;
+    payoutspage?: string;
+    // Filtros de la tabla de pagos
+    p_status?: string;
+    p_sort?: string;
+    p_order?: string;
+    // Filtros de la tabla de acreditaciones
+    o_status?: string;
+    o_sort?: string;
+    o_order?: string;
+  }>;
 }) {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  const { paymentsPage, payoutsPage } = await searchParams;
+  const sp = await searchParams;
+
+  const paymentsPage = sp.paymentspage;
+  const payoutsPage = sp.payoutspage;
+  const pStatus = sp["p_status"];
+  const pSort = sp["p_sort"];
+  const pOrder = sp["p_order"];
+  const oStatus = sp["o_status"];
+  const oSort = sp["o_sort"];
+  const oOrder = sp["o_order"];
+
+  // Parsear filtros
+  const pCurrentStatus = parsePaymentStatus(pStatus);
+  const pCurrentSort = parseSort(pSort);
+  const pCurrentOrder = parseOrder(pOrder);
+
+  const oCurrentStatus = parsePayoutStatus(oStatus);
+  const oCurrentSort = parseSort(oSort);
+  const oCurrentOrder = parseOrder(oOrder);
 
   const {
     page: pPage,
@@ -30,7 +67,18 @@ export default async function AdminDashboardPage({
     take: oTake,
   } = getPaginationParams({ page: payoutsPage });
 
-  // Stats globales — aggregate, no dependen de la página
+  const paymentWhere = {
+    ...(statusForPrisma(pCurrentStatus) && {
+      status: statusForPrisma(pCurrentStatus),
+    }),
+  };
+  const payoutWhere = {
+    ...(statusForPrisma(oCurrentStatus) && {
+      status: statusForPrisma(oCurrentStatus),
+    }),
+  };
+
+  // Stats globales — siempre sin filtro de página ni de tabla
   const [paymentStats, paymentsByStatus, payoutStats, payoutsByStatus] =
     await Promise.all([
       prisma.payment.aggregate({
@@ -48,22 +96,26 @@ export default async function AdminDashboardPage({
     status: string,
   ) => groups.find((g) => g.status === status)?._count ?? 0;
 
-  // Datos paginados
-  const [payments, payouts] = await Promise.all([
+  // Datos paginados + filtrados
+  const [payments, paymentTotal, payouts, payoutTotal] = await Promise.all([
     prisma.payment.findMany({
-      orderBy: { createdAt: "desc" },
+      where: paymentWhere,
+      orderBy: { [pCurrentSort]: pCurrentOrder },
       skip: pSkip,
       take: pTake,
     }),
+    prisma.payment.count({ where: paymentWhere }),
     prisma.payout.findMany({
-      orderBy: { createdAt: "desc" },
+      where: payoutWhere,
+      orderBy: { [oCurrentSort]: oCurrentOrder },
       skip: oSkip,
       take: oTake,
     }),
+    prisma.payout.count({ where: payoutWhere }),
   ]);
 
-  const totalPaymentPages = Math.ceil(paymentStats._count / PAGE_SIZE);
-  const totalPayoutPages = Math.ceil(payoutStats._count / PAGE_SIZE);
+  const totalPaymentPages = Math.ceil(paymentTotal / PAGE_SIZE);
+  const totalPayoutPages = Math.ceil(payoutTotal / PAGE_SIZE);
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-10 flex flex-col gap-10">
@@ -119,6 +171,18 @@ export default async function AdminDashboardPage({
         <h2 className="text-sm font-semibold text-verde-profundo uppercase tracking-wide">
           Todos los pagos
         </h2>
+        <FilterBar
+          statusOptions={[
+            { value: "all", label: "Todos" },
+            { value: "pending", label: "Pendiente" },
+            { value: "approved", label: "Aprobado" },
+            { value: "rejected", label: "Rechazado" },
+          ]}
+          currentStatus={pCurrentStatus}
+          currentSort={pCurrentSort}
+          currentOrder={pCurrentOrder}
+          paramPrefix="p_"
+        />
         <Pagination
           page={pPage}
           totalPages={totalPaymentPages}
@@ -171,6 +235,19 @@ export default async function AdminDashboardPage({
         <h2 className="text-sm font-semibold text-verde-profundo uppercase tracking-wide">
           Todas las acreditaciones
         </h2>
+        <Suspense fallback={null}>
+          <FilterBar
+            statusOptions={[
+              { value: "all", label: "Todas" },
+              { value: "pending", label: "Pendiente" },
+              { value: "paid", label: "Acreditada" },
+            ]}
+            currentStatus={oCurrentStatus}
+            currentSort={oCurrentSort}
+            currentOrder={oCurrentOrder}
+            paramPrefix="o_"
+          />
+        </Suspense>
         <Pagination
           page={oPage}
           totalPages={totalPayoutPages}
