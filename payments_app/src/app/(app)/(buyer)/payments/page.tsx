@@ -11,39 +11,40 @@ import {
   parseSort,
   parseOrder,
   parsePaymentStatus,
+  parseSearch,
+  parseDateRange,
   statusForPrisma,
 } from "@/lib/filters";
 
 export default async function BuyerPaymentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{
-    page?: string;
-    status?: string;
-    sort?: string;
-    order?: string;
-  }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
   const sp = await searchParams;
-  const pageParam = sp.page;
-  const status = sp.status;
-  const sort = sp.sort;
-  const order = sp.order;
 
-  const currentStatus = parsePaymentStatus(status);
-  const currentSort = parseSort(sort);
-  const currentOrder = parseOrder(order);
+  const currentStatus = parsePaymentStatus(sp.status);
+  const currentSort = parseSort(sp.sort);
+  const currentOrder = parseOrder(sp.order);
+  const currentSearch = parseSearch(sp.search);
+  const currentDay = sp.day ?? "";
+  const currentMonth = sp.month ?? "";
+  const dateRange = parseDateRange(sp.day, sp.month);
 
-  const { page, skip, take } = getPaginationParams({ page: pageParam });
+  const { page, skip, take } = getPaginationParams({ page: sp.page });
 
   const where = {
     buyer_id: userId,
     ...(statusForPrisma(currentStatus) && {
       status: statusForPrisma(currentStatus),
     }),
+    ...(currentSearch && {
+      description: { contains: currentSearch, mode: "insensitive" as const },
+    }),
+    ...(dateRange && { createdAt: dateRange }),
   };
 
   const [payments, total] = await Promise.all([
@@ -85,9 +86,12 @@ export default async function BuyerPaymentsPage({
           currentStatus={currentStatus}
           currentSort={currentSort}
           currentOrder={currentOrder}
+          searchPlaceholder="Buscar por descripción..."
+          currentSearch={currentSearch ?? ""}
+          currentDay={currentDay}
+          currentMonth={currentMonth}
         />
       </div>
-
       <Pagination page={page} totalPages={totalPages} basePath="/payments" />
       <PaymentList payments={serialized} />
     </main>
