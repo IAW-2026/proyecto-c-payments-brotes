@@ -13,72 +13,80 @@ import {
   parseOrder,
   parsePaymentStatus,
   parsePayoutStatus,
+  parseSearch,
+  parseDateRange,
   statusForPrisma,
 } from "@/lib/filters";
-import { Suspense } from "react";
+
 export default async function AdminDashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{
-    paymentspage?: string;
-    payoutspage?: string;
-    // Filtros de la tabla de pagos
-    p_status?: string;
-    p_sort?: string;
-    p_order?: string;
-    // Filtros de la tabla de acreditaciones
-    o_status?: string;
-    o_sort?: string;
-    o_order?: string;
-  }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
   const sp = await searchParams;
 
-  const paymentsPage = sp.paymentspage;
-  const payoutsPage = sp.payoutspage;
-  const pStatus = sp["p_status"];
-  const pSort = sp["p_sort"];
-  const pOrder = sp["p_order"];
-  const oStatus = sp["o_status"];
-  const oSort = sp["o_sort"];
-  const oOrder = sp["o_order"];
+  // Filtros tabla pagos (prefijo p_)
+  const pCurrentStatus = parsePaymentStatus(sp["p_status"]);
+  const pCurrentSort = parseSort(sp["p_sort"]);
+  const pCurrentOrder = parseOrder(sp["p_order"]);
+  const pCurrentSearch = parseSearch(sp["p_search"]);
+  const pCurrentDay = sp["p_day"] ?? "";
+  const pCurrentMonth = sp["p_month"] ?? "";
+  const pDateRange = parseDateRange(sp["p_day"], sp["p_month"]);
 
-  // Parsear filtros
-  const pCurrentStatus = parsePaymentStatus(pStatus);
-  const pCurrentSort = parseSort(pSort);
-  const pCurrentOrder = parseOrder(pOrder);
-
-  const oCurrentStatus = parsePayoutStatus(oStatus);
-  const oCurrentSort = parseSort(oSort);
-  const oCurrentOrder = parseOrder(oOrder);
+  // Filtros tabla acreditaciones (prefijo o_)
+  const oCurrentStatus = parsePayoutStatus(sp["o_status"]);
+  const oCurrentSort = parseSort(sp["o_sort"]);
+  const oCurrentOrder = parseOrder(sp["o_order"]);
+  const oCurrentSearch = parseSearch(sp["o_search"]);
+  const oCurrentDay = sp["o_day"] ?? "";
+  const oCurrentMonth = sp["o_month"] ?? "";
+  const oDateRange = parseDateRange(sp["o_day"], sp["o_month"]);
 
   const {
     page: pPage,
     skip: pSkip,
     take: pTake,
-  } = getPaginationParams({ page: paymentsPage });
+  } = getPaginationParams({ page: sp.paymentspage });
 
   const {
     page: oPage,
     skip: oSkip,
     take: oTake,
-  } = getPaginationParams({ page: payoutsPage });
+  } = getPaginationParams({ page: sp.payoutspage });
 
   const paymentWhere = {
     ...(statusForPrisma(pCurrentStatus) && {
       status: statusForPrisma(pCurrentStatus),
     }),
+    ...(pCurrentSearch && {
+      OR: [
+        {
+          description: {
+            contains: pCurrentSearch,
+            mode: "insensitive" as const,
+          },
+        },
+        { id: { contains: pCurrentSearch, mode: "insensitive" as const } },
+      ],
+    }),
+    ...(pDateRange && { createdAt: pDateRange }),
   };
+
   const payoutWhere = {
     ...(statusForPrisma(oCurrentStatus) && {
       status: statusForPrisma(oCurrentStatus),
     }),
+    ...(oCurrentSearch && {
+      seller_email: { contains: oCurrentSearch, mode: "insensitive" as const },
+    }),
+    ...(oDateRange && { createdAt: oDateRange }),
   };
 
-  // Stats globales — siempre sin filtro de página ni de tabla
+  // Stats globales — sin filtros
   const [paymentStats, paymentsByStatus, payoutStats, payoutsByStatus] =
     await Promise.all([
       prisma.payment.aggregate({
@@ -96,7 +104,6 @@ export default async function AdminDashboardPage({
     status: string,
   ) => groups.find((g) => g.status === status)?._count ?? 0;
 
-  // Datos paginados + filtrados
   const [payments, paymentTotal, payouts, payoutTotal] = await Promise.all([
     prisma.payment.findMany({
       where: paymentWhere,
@@ -166,7 +173,7 @@ export default async function AdminDashboardPage({
         </div>
       </section>
 
-      {/* Tabla pagos paginada */}
+      {/* Tabla pagos */}
       <section className="flex flex-col gap-4">
         <h2 className="text-sm font-semibold text-verde-profundo uppercase tracking-wide">
           Todos los pagos
@@ -181,6 +188,10 @@ export default async function AdminDashboardPage({
           currentStatus={pCurrentStatus}
           currentSort={pCurrentSort}
           currentOrder={pCurrentOrder}
+          searchPlaceholder="Buscar por descripción o ID..."
+          currentSearch={pCurrentSearch ?? ""}
+          currentDay={pCurrentDay}
+          currentMonth={pCurrentMonth}
           paramPrefix="p_"
         />
         <Pagination
@@ -230,24 +241,26 @@ export default async function AdminDashboardPage({
         </div>
       </section>
 
-      {/* Tabla payouts paginada */}
+      {/* Tabla acreditaciones */}
       <section className="flex flex-col gap-4">
         <h2 className="text-sm font-semibold text-verde-profundo uppercase tracking-wide">
           Todas las acreditaciones
         </h2>
-        <Suspense fallback={null}>
-          <FilterBar
-            statusOptions={[
-              { value: "all", label: "Todas" },
-              { value: "pending", label: "Pendiente" },
-              { value: "paid", label: "Acreditada" },
-            ]}
-            currentStatus={oCurrentStatus}
-            currentSort={oCurrentSort}
-            currentOrder={oCurrentOrder}
-            paramPrefix="o_"
-          />
-        </Suspense>
+        <FilterBar
+          statusOptions={[
+            { value: "all", label: "Todas" },
+            { value: "pending", label: "Pendiente" },
+            { value: "paid", label: "Acreditada" },
+          ]}
+          currentStatus={oCurrentStatus}
+          currentSort={oCurrentSort}
+          currentOrder={oCurrentOrder}
+          searchPlaceholder="Buscar por email del seller..."
+          currentSearch={oCurrentSearch ?? ""}
+          currentDay={oCurrentDay}
+          currentMonth={oCurrentMonth}
+          paramPrefix="o_"
+        />
         <Pagination
           page={oPage}
           totalPages={totalPayoutPages}
