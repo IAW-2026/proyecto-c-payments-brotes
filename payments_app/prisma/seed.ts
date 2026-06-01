@@ -16,30 +16,9 @@ const SELLER_ID = "user_3E1w6lYJ5OVh0A9PCa33alsZcSG";
 async function main() {
   console.log("🌿 Seeding plant marketplace payments...");
 
-  // Limpiar datos previos del buyer de prueba
-  // Buscar payments previos
-  const existingPayments = await prisma.payment.findMany({
-    where: { buyer_id: BUYER_ID },
-    select: { id: true },
-  });
-
-  const paymentIds = existingPayments.map((p) => p.id);
-
-  // Borrar payouts relacionados
-  await prisma.payout.deleteMany({
-    where: {
-      payment_id: {
-        in: paymentIds,
-      },
-    },
-  });
-
-  // Borrar payments
-  await prisma.payment.deleteMany({
-    where: {
-      buyer_id: BUYER_ID,
-    },
-  });
+  // Limpiar todo
+  await prisma.payout.deleteMany({});
+  await prisma.payment.deleteMany({});
 
   // Pago 1 — pending
   await prisma.payment.create({
@@ -50,6 +29,8 @@ async function main() {
       status: "pending",
       buyer_id: BUYER_ID,
       seller_id: SELLER_ID,
+      seller_email: "seller01@brotes.com",
+      buyer_email: "buyer01@brotes.com",
       description: "Monstera Deliciosa mediana con maceta de cerámica",
     },
   });
@@ -63,6 +44,8 @@ async function main() {
       status: "pending",
       buyer_id: BUYER_ID,
       seller_id: SELLER_ID,
+      seller_email: "seller01@brotes.com",
+      buyer_email: "buyer01@brotes.com",
       description: "Kit de herramientas para jardinería indoor",
     },
   });
@@ -76,6 +59,8 @@ async function main() {
       status: "approved",
       buyer_id: BUYER_ID,
       seller_id: SELLER_ID,
+      seller_email: "seller01@brotes.com",
+      buyer_email: "buyer01@brotes.com",
       description: "Olivo joven premium para exterior",
     },
   });
@@ -84,6 +69,8 @@ async function main() {
     data: {
       payment_id: approvedPayment.id,
       seller_id: SELLER_ID,
+      seller_email: "seller01@brotes.com",
+      buyer_email: "buyer01@brotes.com",
       amount: approvedPayment.amount,
       currency: "ARS",
       status: "paid",
@@ -99,6 +86,8 @@ async function main() {
       status: "approved",
       buyer_id: BUYER_ID,
       seller_id: SELLER_ID,
+      seller_email: "seller01@brotes.com",
+      buyer_email: "buyer01@brotes.com",
       description: "Pack x3 cactus decorativos + sustrato mineral",
     },
   });
@@ -107,6 +96,8 @@ async function main() {
     data: {
       payment_id: approvedPayment2.id,
       seller_id: SELLER_ID,
+      seller_email: "seller01@brotes.com",
+      buyer_email: "buyer01@brotes.com",
       amount: approvedPayment2.amount,
       currency: "ARS",
       status: "pending",
@@ -122,6 +113,8 @@ async function main() {
       status: "rejected",
       buyer_id: BUYER_ID,
       seller_id: SELLER_ID,
+      seller_email: "seller01@brotes.com",
+      buyer_email: "buyer01@brotes.com",
       description: "Ficus Lyrata grande para living",
     },
   });
@@ -135,6 +128,8 @@ async function main() {
       status: "pending",
       buyer_id: BUYER_ID,
       seller_id: SELLER_ID,
+      seller_email: "seller01@brotes.com",
+      buyer_email: "buyer01@brotes.com",
       description: "Fertilizante orgánico líquido para plantas de interior",
     },
   });
