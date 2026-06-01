@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 interface PayoutAccreditationStatusProps {
   status: string;
@@ -11,20 +11,18 @@ export function PayoutAccreditationStatus({
   status,
   createdAt,
 }: PayoutAccreditationStatusProps) {
-  const durationRef = useRef(Math.floor(Math.random() * 10001) + 30000);
+  const [animating, setAnimating] = useState(() => {
+    const isRecent = Date.now() - new Date(createdAt).getTime() < 60_000;
+    return status === "paid" && isRecent;
+  });
 
-  const [animating, setAnimating] = useState(false);
+  const [duration] = useState(() => Math.floor(Math.random() * 10001) + 30000);
 
   useEffect(() => {
-    const created = new Date(createdAt).getTime();
-    const isRecent = Date.now() - created < 60_000;
-
-    if (status === "paid" && isRecent) {
-      setAnimating(true);
-      const timer = setTimeout(() => setAnimating(false), durationRef.current);
-      return () => clearTimeout(timer);
-    }
-  }, [status, createdAt]);
+    if (!animating) return;
+    const timer = setTimeout(() => setAnimating(false), duration);
+    return () => clearTimeout(timer);
+  }, [animating, duration]);
 
   if (animating) {
     return (
