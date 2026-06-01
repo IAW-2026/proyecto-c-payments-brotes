@@ -39,13 +39,19 @@ const client = new MercadoPagoConfig({
 export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.text();
+    const urlParams = new URL(req.url).searchParams;
+    const topic = urlParams.get("topic");
 
+    // merchant_order no tiene firma — ignorar directamente sin verificar
+    if (topic === "merchant_order") {
+      return NextResponse.json({ received: true });
+    }
+
+    // Solo verificar firma para notificaciones que la incluyen
     if (!verifyMPSignature(req)) {
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
-    const urlParams = new URL(req.url).searchParams;
-    const topic = urlParams.get("topic");
     const urlId = urlParams.get("id");
 
     // Intentar obtener paymentId del body (nuevo formato) o URL params (legacy)
