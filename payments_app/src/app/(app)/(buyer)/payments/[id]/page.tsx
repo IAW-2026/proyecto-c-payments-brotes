@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { BadgeStatus, StatusBadge } from "@/components/ui/StatusBadge";
+import { PaymentStatusWatcher } from "@/components/ui/PaymentStatusWatcher";
 import { formatAmount, formatDateLong } from "@/lib/format";
 
 export default async function PaymentDetailPage({
@@ -88,6 +89,10 @@ export default async function PaymentDetailPage({
           </div>
         )}
       </div>
+
+      {payment.status === "pending" && (
+        <PaymentStatusWatcher paymentId={payment.id} />
+      )}
     </main>
   );
 }

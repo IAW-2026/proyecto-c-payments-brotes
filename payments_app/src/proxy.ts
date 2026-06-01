@@ -25,6 +25,8 @@ const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
 
 const isWebhookRoute = createRouteMatcher(["/api/webhooks(.*)"]);
 
+const isSseRoute = createRouteMatcher(["/api/payments/(.*)/status"]);
+
 const isProtectedRoute = createRouteMatcher([
   "/payments(.*)",
   "/payouts(.*)",
@@ -44,6 +46,11 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 
   // Webhooks bypass auth — evaluar antes que cualquier otro chequeo de /api
   if (isWebhookRoute(req) || pathname.startsWith("/api/webhooks")) {
+    return NextResponse.next();
+  }
+
+  // SSE bypass auth por API key — usa Clerk session en el handler
+  if (isSseRoute(req)) {
     return NextResponse.next();
   }
 
