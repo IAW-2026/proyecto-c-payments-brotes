@@ -70,6 +70,7 @@ export default async function SellerPayoutsPage({
     ...p,
     createdAt: p.createdAt.toISOString(),
     status: isPayoutStatus(p.status) ? p.status : "pending",
+    buyer_email: p.buyer_email,
   }));
 
   return (

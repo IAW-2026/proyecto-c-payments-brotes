@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createPreference } from "@/services/mercadopagoService";
 import { CreatePaymentSchema } from "@/lib/validator";
-
+import { clerkClient } from "@clerk/nextjs/server";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -30,6 +30,17 @@ export async function POST(req: NextRequest) {
       description,
       buyer_email,
     } = result.data;
+    const clerk = await clerkClient();
+    let sellerEmail: string | null = null;
+    try {
+      const seller = await clerk.users.getUser(seller_id);
+      sellerEmail = seller.emailAddresses[0]?.emailAddress ?? null;
+    } catch {
+      console.warn(
+        "[POST /api/payments] No se pudo obtener email del seller",
+        seller_id,
+      );
+    }
 
     const payment = await prisma.payment.create({
       data: {
@@ -41,6 +52,7 @@ export async function POST(req: NextRequest) {
         status: "pending",
         description: description ?? null,
         buyer_email: buyer_email || null,
+        seller_email: sellerEmail, // nuevo
       },
     });
 

@@ -14,6 +14,7 @@ interface Payment {
   currency: string;
   status: PaymentStatus;
   createdAt: string;
+  seller_email?: string | null;
 }
 
 interface PaymentListProps {
@@ -42,6 +43,7 @@ export function PaymentList({ payments }: PaymentListProps) {
           amount={{ value: payment.amount, currency: payment.currency }}
           status={payment.status}
           createdAt={payment.createdAt}
+          sellerEmail={payment.seller_email ?? undefined}
           onClick={() => router.push(`/payments/${payment.id}`)}
         />
       ))}

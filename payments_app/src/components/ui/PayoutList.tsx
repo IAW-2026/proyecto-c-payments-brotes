@@ -12,6 +12,7 @@ interface Payout {
   currency: string;
   status: PayoutStatus;
   createdAt: string;
+  buyer_email?: string | null;
 }
 
 interface PayoutListProps {
@@ -39,6 +40,7 @@ export function PayoutList({ payouts }: PayoutListProps) {
           amount={{ value: payout.amount, currency: payout.currency }}
           status={payout.status}
           createdAt={payout.createdAt}
+          buyerEmail={payout.buyer_email ?? undefined}
           onClick={() => router.push(`/payouts/${payout.id}`)}
         />
       ))}

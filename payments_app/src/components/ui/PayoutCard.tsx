@@ -7,6 +7,7 @@ interface PayoutCardProps {
   amount: { value: number; currency: string };
   status: PayoutStatus;
   createdAt: string;
+  buyerEmail?: string;
   onClick?: () => void;
 }
 
@@ -16,6 +17,7 @@ export function PayoutCard({
   amount,
   status,
   createdAt,
+  buyerEmail,
   onClick,
 }: PayoutCardProps) {
   return (
@@ -34,8 +36,15 @@ export function PayoutCard({
         </span>
         <span className="text-xs text-marron-tierra truncate">
           Pago {paymentId}
+          {buyerEmail && (
+            <span className="text-xs text-marron-tierra truncate">
+              {buyerEmail}
+            </span>
+          )}
         </span>
-        <span className="text-xs text-gris-piedra">{formatDate(createdAt)}</span>
+        <span className="text-xs text-gris-piedra">
+          {formatDate(createdAt)}
+        </span>
       </div>
 
       <div className="flex flex-col items-end gap-2 shrink-0">

@@ -215,6 +215,7 @@ export default async function AdminDashboardPage({
             <thead>
               <tr className="border-b border-beige text-xs text-marron-tierra">
                 <th className="text-left px-5 py-3 font-medium">ID</th>
+                <th className="text-left px-5 py-3 font-medium">Comprador</th>
                 <th className="text-left px-5 py-3 font-medium">Descripción</th>
                 <th className="text-left px-5 py-3 font-medium">Fecha</th>
                 <th className="text-right px-5 py-3 font-medium">Monto</th>
@@ -231,6 +232,9 @@ export default async function AdminDashboardPage({
                 >
                   <td className="px-5 py-3 font-mono text-xs text-verde-hoja truncate max-w-30">
                     {payment.id}
+                  </td>
+                  <td className="px-5 py-3 text-marron-tierra truncate max-w-40">
+                    {payment.buyer_email ?? "—"}
                   </td>
                   <td className="px-5 py-3 text-verde-profundo truncate max-w-40">
                     {payment.description ?? "—"}

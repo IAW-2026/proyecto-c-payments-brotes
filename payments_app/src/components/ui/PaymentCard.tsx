@@ -7,6 +7,7 @@ interface PaymentCardProps {
   amount: { value: number; currency: string };
   status: BadgeStatus;
   createdAt: string;
+  sellerEmail?: string;
   onClick?: () => void;
 }
 
@@ -16,6 +17,7 @@ export function PaymentCard({
   amount,
   status,
   createdAt,
+  sellerEmail,
   onClick,
 }: PaymentCardProps) {
   return (
@@ -32,8 +34,17 @@ export function PaymentCard({
         <span className="text-xs text-verde-hoja font-mono truncate">
           {paymentId}
         </span>
-        <span className="text-xs text-marron-tierra truncate">Orden {orderId}</span>
-        <span className="text-xs text-gris-piedra">{formatDate(createdAt)}</span>
+        <span className="text-xs text-marron-tierra truncate">
+          Orden {orderId}
+          {sellerEmail && (
+            <span className="text-xs text-marron-tierra truncate">
+              {sellerEmail}
+            </span>
+          )}
+        </span>
+        <span className="text-xs text-gris-piedra">
+          {formatDate(createdAt)}
+        </span>
       </div>
 
       <div className="flex flex-col items-end gap-2 shrink-0">

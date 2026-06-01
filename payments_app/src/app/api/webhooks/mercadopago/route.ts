@@ -91,6 +91,8 @@ export async function POST(req: NextRequest) {
         data: {
           payment_id: updatedPayment.id,
           seller_id: updatedPayment.seller_id,
+          seller_email: updatedPayment.seller_email ?? null, // nuevo (ya existe en Payment)
+          buyer_email: updatedPayment.buyer_email ?? null, // nuevo
           amount: updatedPayment.amount,
           currency: updatedPayment.currency,
           status: "pending",
