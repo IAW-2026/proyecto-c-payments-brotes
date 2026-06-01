@@ -45,6 +45,7 @@ export function FilterBar({
 
   // Sincronizar si el Server Component cambia currentSearch (ej: limpiar filtros)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSearchInput(currentSearch);
   }, [currentSearch]);
 
