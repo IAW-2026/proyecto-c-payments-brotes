@@ -41,18 +41,28 @@ export async function POST(req: NextRequest) {
     const rawBody = await req.text();
     const urlParams = new URL(req.url).searchParams;
     const topic = urlParams.get("topic");
+    const urlId = urlParams.get("id");
 
+    console.log("[MP Webhook] headers:", {
+      "x-signature": req.headers.get("x-signature"),
+      "x-request-id": req.headers.get("x-request-id"),
+      "content-type": req.headers.get("content-type"),
+    });
+    console.log("[MP Webhook] query params:", { topic, id: urlId });
+    console.log("[MP Webhook] raw body:", rawBody || "(vacío)");
     // merchant_order no tiene firma — ignorar directamente sin verificar
     if (topic === "merchant_order") {
+      console.log("[MP Webhook] ignorando merchant_order");
       return NextResponse.json({ received: true });
     }
 
     // Solo verificar firma para notificaciones que la incluyen
-    if (!verifyMPSignature(req)) {
+    const signatureValid = verifyMPSignature(req);
+    console.log("[MP Webhook] firma válida:", signatureValid);
+
+    if (!signatureValid) {
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
-
-    const urlId = urlParams.get("id");
 
     // Intentar obtener paymentId del body (nuevo formato) o URL params (legacy)
     let paymentId: string | string[] | undefined;
@@ -69,7 +79,7 @@ export async function POST(req: NextRequest) {
         // body no es JSON o está vacío — usar fallback legacy
       }
     }
-
+    console.log("[MP Webhook] paymentId resuelto:", paymentId);
     // Legacy: topic e id vienen como query params
     if (!paymentId) {
       if (topic === "payment" && urlId) {
@@ -97,6 +107,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    console.log("[MP Webhook] estado en MP:", {
+      status: mpPayment.status,
+      external_reference: mpPayment.external_reference,
+    });
     const statusMap: Record<string, string> = {
       approved: "approved",
       rejected: "rejected",
