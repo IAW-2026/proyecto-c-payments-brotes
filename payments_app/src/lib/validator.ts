@@ -68,3 +68,10 @@ export const SellerIdSchema = z.object({
     .trim()
     .min(1, "sellerId no puede estar vacío."),
 });
+
+export const PaymentIdSchema = z.object({
+  id: z
+    .string({ error: "id es obligatorio." })
+    .trim()
+    .min(1, "id no puede estar vacío."),
+});
