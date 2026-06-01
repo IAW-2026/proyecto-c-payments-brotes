@@ -11,35 +11,40 @@ import {
   parseSort,
   parseOrder,
   parsePayoutStatus,
+  parseSearch,
+  parseDateRange,
   statusForPrisma,
 } from "@/lib/filters";
 
 export default async function SellerPayoutsPage({
   searchParams,
 }: {
-  searchParams: Promise<{
-    page?: string;
-    status?: string;
-    sort?: string;
-    order?: string;
-  }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  const { page: pageParam, status, sort, order } = await searchParams;
+  const sp = await searchParams;
 
-  const currentStatus = parsePayoutStatus(status);
-  const currentSort = parseSort(sort);
-  const currentOrder = parseOrder(order);
+  const currentStatus = parsePayoutStatus(sp.status);
+  const currentSort = parseSort(sp.sort);
+  const currentOrder = parseOrder(sp.order);
+  const currentSearch = parseSearch(sp.search);
+  const currentDay = sp.day ?? "";
+  const currentMonth = sp.month ?? "";
+  const dateRange = parseDateRange(sp.day, sp.month);
 
-  const { page, skip, take } = getPaginationParams({ page: pageParam });
+  const { page, skip, take } = getPaginationParams({ page: sp.page });
 
   const where = {
     seller_id: userId,
     ...(statusForPrisma(currentStatus) && {
       status: statusForPrisma(currentStatus),
     }),
+    ...(currentSearch && {
+      payment_id: { contains: currentSearch, mode: "insensitive" as const },
+    }),
+    ...(dateRange && { createdAt: dateRange }),
   };
 
   const [payouts, total] = await Promise.all([
@@ -80,6 +85,10 @@ export default async function SellerPayoutsPage({
           currentStatus={currentStatus}
           currentSort={currentSort}
           currentOrder={currentOrder}
+          searchPlaceholder="Buscar por ID de pago..."
+          currentSearch={currentSearch ?? ""}
+          currentDay={currentDay}
+          currentMonth={currentMonth}
         />
       </div>
 
