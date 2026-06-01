@@ -133,8 +133,8 @@ export function DashboardCharts({
             </PieChart>
           </ResponsiveContainer>
           <div className="flex flex-wrap justify-center gap-3 mt-2">
-            {allStatusData.map((entry) => (
-              <div key={entry.name} className="flex items-center gap-1.5 text-xs text-marron-tierra">
+            {allStatusData.map((entry, i) => (
+              <div key={`${i}-${entry.name}`} className="flex items-center gap-1.5 text-xs text-marron-tierra">
                 <span
                   className="w-2.5 h-2.5 rounded-full"
                   style={{ backgroundColor: entry.color }}

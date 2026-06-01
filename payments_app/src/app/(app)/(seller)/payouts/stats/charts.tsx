@@ -114,7 +114,7 @@ export function PayoutStatsCharts({
             <div className="flex justify-center gap-4 mt-2">
               {pieData.map((entry) => (
                 <div
-                  key={entry.name}
+                  key={`payout-${entry.name}`}
                   className="flex items-center gap-1.5 text-xs text-marron-tierra"
                 >
                   <span
