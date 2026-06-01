@@ -23,6 +23,8 @@ function checkRateLimit(key: string): boolean {
 
 const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
 
+const isWebhookRoute = createRouteMatcher(["/api/webhooks(.*)"]);
+
 const isProtectedRoute = createRouteMatcher([
   "/payments(.*)",
   "/payouts(.*)",
@@ -40,10 +42,12 @@ const routeRoleMap = [
 export default clerkMiddleware(async (auth, req: NextRequest) => {
   const { pathname } = req.nextUrl;
 
+  // Webhooks bypass auth — evaluar antes que cualquier otro chequeo de /api
+  if (isWebhookRoute(req) || pathname.startsWith("/api/webhooks")) {
+    return NextResponse.next();
+  }
+
   if (pathname.startsWith("/api")) {
-    if (pathname.startsWith("/api/webhooks")) {
-      return NextResponse.next();
-    }
     const authHeader = req.headers.get("authorization");
     const token = authHeader?.replace("Bearer ", "");
 
