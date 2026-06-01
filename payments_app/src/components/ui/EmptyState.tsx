@@ -8,6 +8,7 @@ export function EmptyState({ title, description }: EmptyStateProps) {
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <div className="w-12 h-12 rounded-full bg-verde-suave flex items-center justify-center mb-4">
         <svg
+          aria-hidden="true"
           className="w-6 h-6 text-verde-hoja"
           fill="none"
           viewBox="0 0 24 24"

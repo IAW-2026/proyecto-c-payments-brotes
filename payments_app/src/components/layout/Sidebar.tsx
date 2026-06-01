@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useSidebar } from "./SidebarContext";
 
 // Íconos SVG inline — sin dependencia extra
@@ -112,6 +113,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ role }: SidebarProps) {
+  const pathname = usePathname();
   const { collapsed, toggle } = useSidebar();
 
   const navItems: NavItem[] = [
@@ -181,6 +183,7 @@ export default function Sidebar({ role }: SidebarProps) {
             key={item.href}
             href={item.href}
             title={collapsed ? item.label : undefined}
+            aria-current={pathname === item.href ? "page" : undefined}
             className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-verde-brote hover:bg-verde-bosque hover:text-white transition-colors ${
               collapsed ? "justify-center" : ""
             }`}

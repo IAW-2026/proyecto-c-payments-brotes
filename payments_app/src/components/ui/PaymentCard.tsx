@@ -23,6 +23,9 @@ export function PaymentCard({
   return (
     <div
       onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } } : undefined}
       className={`
         bg-white border border-beige rounded-xl px-5 py-4
         flex items-center justify-between gap-4

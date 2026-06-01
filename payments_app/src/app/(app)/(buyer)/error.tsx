@@ -14,7 +14,7 @@ export default function BuyerError({ error, reset }: ErrorProps) {
 
   return (
     <div className="p-6 max-w-4xl mx-auto flex flex-col items-center justify-center min-h-[40vh] gap-4 text-center">
-      <div className="text-4xl">⚠️</div>
+      <div className="text-4xl" role="img" aria-label="Advertencia">⚠️</div>
       <h2 className="text-xl font-semibold text-verde-profundo">
         Algo salió mal
       </h2>

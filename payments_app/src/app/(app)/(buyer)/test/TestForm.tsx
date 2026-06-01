@@ -106,10 +106,11 @@ export function TestForm({
         </button>
       </div>
       <div>
-        <label className="block text-sm font-medium text-verde-profundo mb-1">
+        <label htmlFor="seller_id" className="block text-sm font-medium text-verde-profundo mb-1">
           Seller
         </label>
         <select
+          id="seller_id"
           name="seller_id"
           value={values.seller_id}
           onChange={(e) =>
@@ -125,10 +126,11 @@ export function TestForm({
         </select>
       </div>
       <div>
-        <label className="block text-sm font-medium text-verde-profundo mb-1">
+        <label htmlFor="buyer_id" className="block text-sm font-medium text-verde-profundo mb-1">
           Buyer ID
         </label>
         <input
+          id="buyer_id"
           type="hidden"
           name="buyer_id"
           value={buyerId}
@@ -138,10 +140,11 @@ export function TestForm({
       </div>
       {fields.map(({ label, name, type }) => (
         <div key={name}>
-          <label className="block text-sm font-medium text-verde-profundo mb-1">
+          <label htmlFor={name} className="block text-sm font-medium text-verde-profundo mb-1">
             {label}
           </label>
           <input
+            id={name}
             type={type}
             name={name}
             value={values[name] ?? ""}

@@ -30,6 +30,7 @@ export function Pagination({
       {page > 1 ? (
         <a
           href={buildHref(page - 1)}
+          aria-label="Ir a página anterior"
           className="px-3 py-1.5 rounded-lg border border-verde-brote text-verde-bosque hover:bg-verde-brote transition-colors"
         >
           ← Anterior
@@ -43,6 +44,7 @@ export function Pagination({
       {page < totalPages ? (
         <a
           href={buildHref(page + 1)}
+          aria-label="Ir a página siguiente"
           className="px-3 py-1.5 rounded-lg border border-verde-brote text-verde-bosque hover:bg-verde-brote transition-colors"
         >
           Siguiente →

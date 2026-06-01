@@ -135,6 +135,7 @@ export function FilterBar({
         type="text"
         value={searchInput}
         placeholder={searchPlaceholder}
+        aria-label={searchPlaceholder}
         onChange={(e) => handleSearchChange(e.target.value)}
         className="w-full text-sm rounded-lg border border-beige bg-white text-verde-profundo px-3 py-1.5 placeholder:text-marron-tierra/50 focus:outline-none focus:ring-2 focus:ring-verde-hoja"
       />
@@ -142,10 +143,11 @@ export function FilterBar({
       <div className="flex flex-wrap items-center gap-2">
         {/* Estado */}
         <div className="flex items-center gap-1.5">
-          <label className="text-xs font-medium text-marron-tierra whitespace-nowrap">
+          <label htmlFor={`fb-status${p}`} className="text-xs font-medium text-verde-profundo whitespace-nowrap">
             Estado
           </label>
           <select
+            id={`fb-status${p}`}
             value={currentStatus}
             onChange={(e) => updateParam("status", e.target.value)}
             className="text-sm rounded-lg border border-beige bg-white text-verde-profundo px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-verde-hoja cursor-pointer"
@@ -160,10 +162,11 @@ export function FilterBar({
 
         {/* Ordenar por */}
         <div className="flex items-center gap-1.5">
-          <label className="text-xs font-medium text-marron-tierra whitespace-nowrap">
+          <label htmlFor={`fb-sort${p}`} className="text-xs font-medium text-verde-profundo whitespace-nowrap">
             Ordenar por
           </label>
           <select
+            id={`fb-sort${p}`}
             value={currentSort}
             onChange={(e) => updateParam("sort", e.target.value)}
             className="text-sm rounded-lg border border-beige bg-white text-verde-profundo px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-verde-hoja cursor-pointer"
@@ -175,10 +178,11 @@ export function FilterBar({
 
         {/* Ord. */}
         <div className="flex items-center gap-1.5">
-          <label className="text-xs font-medium text-marron-tierra whitespace-nowrap">
+          <label htmlFor={`fb-order${p}`} className="text-xs font-medium text-verde-profundo whitespace-nowrap">
             Ord.
           </label>
           <select
+            id={`fb-order${p}`}
             value={currentOrder}
             onChange={(e) => updateParam("order", e.target.value)}
             className="text-sm rounded-lg border border-beige bg-white text-verde-profundo px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-verde-hoja cursor-pointer"
@@ -190,10 +194,11 @@ export function FilterBar({
 
         {/* Día exacto */}
         <div className="flex items-center gap-1.5">
-          <label className="text-xs font-medium text-marron-tierra whitespace-nowrap">
+          <label htmlFor={`fb-day${p}`} className="text-xs font-medium text-verde-profundo whitespace-nowrap">
             Día
           </label>
           <input
+            id={`fb-day${p}`}
             type="date"
             value={currentDay}
             onChange={(e) => updateDay(e.target.value)}
@@ -203,10 +208,11 @@ export function FilterBar({
 
         {/* Mes exacto */}
         <div className="flex items-center gap-1.5">
-          <label className="text-xs font-medium text-marron-tierra whitespace-nowrap">
+          <label htmlFor={`fb-month${p}`} className="text-xs font-medium text-verde-profundo whitespace-nowrap">
             Mes
           </label>
           <input
+            id={`fb-month${p}`}
             type="month"
             value={currentMonth}
             onChange={(e) => updateMonth(e.target.value)}
