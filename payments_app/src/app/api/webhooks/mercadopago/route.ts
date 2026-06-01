@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import MercadoPagoConfig, { Payment } from "mercadopago";
 import { createHmac } from "crypto";
+import { notifyApprovedPayment, notifyRejectedPayment } from "@/services/buyerService";
+import {
+  notifyIncomingPayout,
+  notifyStockReservationConfirmed,
+  notifyStockReservationRejected,
+} from "@/services/sellerService";
 
 function verifyMPSignature(req: NextRequest): boolean {
   const xSignature = req.headers.get("x-signature");
@@ -50,6 +56,84 @@ function verifyMPSignature(req: NextRequest): boolean {
   return expected === v1;
 }
 
+async function firePaymentNotifications(
+  newStatus: string,
+  payment: {
+    id: string;
+    order_id: string;
+    buyer_id: string;
+    amount: number;
+    currency: string;
+    createdAt: Date;
+  },
+  payout?: {
+    id: string;
+    payment_id: string;
+    seller_id: string;
+    amount: number;
+    currency: string;
+    createdAt: Date;
+  } | null,
+) {
+  if (newStatus === "approved") {
+    try {
+      await notifyApprovedPayment({
+        payment_id: payment.id,
+        buyer_id: payment.buyer_id,
+        amount: { value: payment.amount, currency: payment.currency },
+        created_at: payment.createdAt.toISOString(),
+      });
+    } catch (e) {
+      console.error("[MP Webhook] Error notificando approved-payment:", e);
+    }
+
+    if (payment.order_id) {
+      try {
+        await notifyStockReservationConfirmed(payment.order_id);
+      } catch (e) {
+        console.error("[MP Webhook] Error notificando stock-reservation confirm:", e);
+      }
+    } else {
+      console.warn("[MP Webhook] order_id es null, saltando notificación de stock");
+    }
+
+    if (payout) {
+      try {
+        await notifyIncomingPayout({
+          payout_id: payout.id,
+          payment_id: payout.payment_id,
+          seller_id: payout.seller_id,
+          amount: { value: payout.amount, currency: payout.currency },
+          created_at: payout.createdAt.toISOString(),
+        });
+      } catch (e) {
+        console.error("[MP Webhook] Error notificando incoming-payout:", e);
+      }
+    }
+  } else if (newStatus === "rejected") {
+    try {
+      await notifyRejectedPayment({
+        payment_id: payment.id,
+        buyer_id: payment.buyer_id,
+        amount: { value: payment.amount, currency: payment.currency },
+        created_at: payment.createdAt.toISOString(),
+      });
+    } catch (e) {
+      console.error("[MP Webhook] Error notificando rejected-payment:", e);
+    }
+
+    if (payment.order_id) {
+      try {
+        await notifyStockReservationRejected(payment.order_id);
+      } catch (e) {
+        console.error("[MP Webhook] Error notificando stock-reservation reject:", e);
+      }
+    } else {
+      console.warn("[MP Webhook] order_id es null, saltando notificación de stock");
+    }
+  }
+}
+
 async function processPayment(paymentId: string) {
   const paymentClient = new Payment(client);
   const mpPayment = await paymentClient.get({ id: paymentId });
@@ -80,8 +164,10 @@ async function processPayment(paymentId: string) {
     data: { status: newStatus },
   });
 
+  let payout = null;
+
   if (newStatus === "approved") {
-    await prisma.payout.create({
+    payout = await prisma.payout.create({
       data: {
         payment_id: updatedPayment.id,
         seller_id: updatedPayment.seller_id,
@@ -93,6 +179,8 @@ async function processPayment(paymentId: string) {
       },
     });
   }
+
+  await firePaymentNotifications(newStatus, updatedPayment, payout);
 }
 
 const client = new MercadoPagoConfig({

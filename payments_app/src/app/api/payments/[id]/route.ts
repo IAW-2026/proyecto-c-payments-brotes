@@ -4,6 +4,12 @@ import {
   PaymentIdSchema,
   UpdatePaymentStatusSchema,
 } from "@/lib/validator";
+import { notifyApprovedPayment, notifyRejectedPayment } from "@/services/buyerService";
+import {
+  notifyIncomingPayout,
+  notifyStockReservationConfirmed,
+  notifyStockReservationRejected,
+} from "@/services/sellerService";
 
 async function parseId(params: Promise<{ id: string }>) {
   const rawParams = await params;
@@ -100,8 +106,10 @@ export async function PATCH(
       data: { status: newStatus },
     });
 
+    let payout = null;
+
     if (newStatus === "approved") {
-      await prisma.payout.create({
+      payout = await prisma.payout.create({
         data: {
           payment_id: updated.id,
           seller_id: updated.seller_id,
@@ -112,6 +120,65 @@ export async function PATCH(
           status: "pending",
         },
       });
+    }
+
+    // ── Notificaciones a Buyer y Seller Apps ──────────────────────────────────
+    if (newStatus === "approved") {
+      try {
+        await notifyApprovedPayment({
+          payment_id: updated.id,
+          buyer_id: updated.buyer_id,
+          amount: { value: updated.amount, currency: updated.currency },
+          created_at: updated.createdAt.toISOString(),
+        });
+      } catch (e) {
+        console.error("[PATCH /api/payments/:id] Error notificando approved-payment:", e);
+      }
+
+      if (updated.order_id) {
+        try {
+          await notifyStockReservationConfirmed(updated.order_id);
+        } catch (e) {
+          console.error("[PATCH /api/payments/:id] Error notificando stock-reservation confirm:", e);
+        }
+      } else {
+        console.warn("[PATCH /api/payments/:id] order_id es null, saltando notificación de stock");
+      }
+
+      if (payout) {
+        try {
+          await notifyIncomingPayout({
+            payout_id: payout.id,
+            payment_id: payout.payment_id,
+            seller_id: payout.seller_id,
+            amount: { value: payout.amount, currency: payout.currency },
+            created_at: payout.createdAt.toISOString(),
+          });
+        } catch (e) {
+          console.error("[PATCH /api/payments/:id] Error notificando incoming-payout:", e);
+        }
+      }
+    } else if (newStatus === "rejected") {
+      try {
+        await notifyRejectedPayment({
+          payment_id: updated.id,
+          buyer_id: updated.buyer_id,
+          amount: { value: updated.amount, currency: updated.currency },
+          created_at: updated.createdAt.toISOString(),
+        });
+      } catch (e) {
+        console.error("[PATCH /api/payments/:id] Error notificando rejected-payment:", e);
+      }
+
+      if (updated.order_id) {
+        try {
+          await notifyStockReservationRejected(updated.order_id);
+        } catch (e) {
+          console.error("[PATCH /api/payments/:id] Error notificando stock-reservation reject:", e);
+        }
+      } else {
+        console.warn("[PATCH /api/payments/:id] order_id es null, saltando notificación de stock");
+      }
     }
 
     return NextResponse.json({
