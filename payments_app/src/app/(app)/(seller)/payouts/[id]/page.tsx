@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import { StatusBadge, PayoutStatus } from "@/components/ui/StatusBadge";
+import { PayoutAccreditationStatus } from "@/components/ui/PayoutAccreditationStatus";
 import { formatAmount, formatDateLong } from "@/lib/format";
 
 export default async function PayoutDetailPage({
@@ -43,7 +43,7 @@ export default async function PayoutDetailPage({
           <span className="text-3xl font-bold text-verde-profundo">
             {formatAmount(payout.amount, payout.currency)}
           </span>
-          <StatusBadge status={payout.status as PayoutStatus} />
+          <PayoutAccreditationStatus status={payout.status} createdAt={payout.createdAt} />
         </div>
 
         <hr className="border-beige" />
