@@ -171,9 +171,7 @@ export function FilterBar({
       <input
         type="email"
         value={emailInput}
-        placeholder={
-          emailSearchPlaceholder ?? "Buscar por email del comprador..." //rever
-        }
+        placeholder={emailSearchPlaceholder}
         onChange={(e) => handleEmailChange(e.target.value)}
         className="w-full text-sm rounded-lg border border-beige bg-white text-verde-profundo px-3 py-1.5 placeholder:text-marron-tierra/50 focus:outline-none focus:ring-2 focus:ring-verde-hoja"
       />

@@ -13,6 +13,7 @@ import {
   parseOrder,
   parsePaymentStatus,
   parsePayoutStatus,
+  parseEmailSearch,
   parseSearch,
   parseDateRange,
   statusForPrisma,
@@ -36,6 +37,7 @@ export default async function AdminDashboardPage({
   const pCurrentDay = sp["p_day"] ?? "";
   const pCurrentMonth = sp["p_month"] ?? "";
   const pDateRange = parseDateRange(sp["p_day"], sp["p_month"]);
+  const pCurrentEmailSearch = parseEmailSearch(sp["p_emailSearch"]);
 
   // Filtros tabla acreditaciones (prefijo o_)
   const oCurrentStatus = parsePayoutStatus(sp["o_status"]);
@@ -72,6 +74,12 @@ export default async function AdminDashboardPage({
         },
         { id: { contains: pCurrentSearch, mode: "insensitive" as const } },
       ],
+    }),
+    ...(pCurrentEmailSearch && {
+      buyer_email: {
+        contains: pCurrentEmailSearch,
+        mode: "insensitive" as const,
+      },
     }),
     ...(pDateRange && { createdAt: pDateRange }),
   };
@@ -192,6 +200,8 @@ export default async function AdminDashboardPage({
           currentSearch={pCurrentSearch ?? ""}
           currentDay={pCurrentDay}
           currentMonth={pCurrentMonth}
+          currentEmailSearch={pCurrentEmailSearch ?? ""}
+          emailSearchPlaceholder="Buscar por email del comprador"
           paramPrefix="p_"
         />
         <Pagination
