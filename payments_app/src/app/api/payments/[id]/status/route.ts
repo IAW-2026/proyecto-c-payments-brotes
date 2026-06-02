@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { PaymentIdSchema } from "@/lib/validator";
+import { notifyRejectedPayment } from "@/services/buyerService";
+import { notifyStockReservationRejected } from "@/services/sellerService";
 
 async function parseId(params: Promise<{ id: string }>) {
   const rawParams = await params;
@@ -24,6 +26,56 @@ async function parseId(params: Promise<{ id: string }>) {
 }
 
 const TERMINAL_STATUSES = new Set(["approved", "rejected"]);
+const EXPIRATION_MINUTES = 5;
+
+async function checkAndExpire(
+  payment: {
+    id: string;
+    status: string;
+    createdAt: Date;
+    order_id: string;
+    buyer_id: string;
+    amount: number;
+    currency: string;
+  },
+  send: (data: string) => void,
+  cleanup: () => void,
+) {
+  if (payment.status !== "pending") return false;
+
+  const minutesElapsed =
+    (Date.now() - payment.createdAt.getTime()) / 1000 / 60;
+  if (minutesElapsed <= EXPIRATION_MINUTES) return false;
+
+  await prisma.payment.update({
+    where: { id: payment.id },
+    data: { status: "rejected" },
+  });
+
+  send(`data: ${JSON.stringify({ status: "rejected" })}\n\n`);
+
+  try {
+    await notifyRejectedPayment({
+      payment_id: payment.id,
+      buyer_id: payment.buyer_id,
+      amount: { value: payment.amount, currency: payment.currency },
+      created_at: payment.createdAt.toISOString(),
+    });
+  } catch (e) {
+    console.error("[SSE] Error notificando rejected-payment:", e);
+  }
+
+  if (payment.order_id) {
+    try {
+      await notifyStockReservationRejected(payment.order_id);
+    } catch (e) {
+      console.error("[SSE] Error notificando stock-reservation reject:", e);
+    }
+  }
+
+  cleanup();
+  return true;
+}
 
 export async function GET(
   req: NextRequest,
@@ -40,7 +92,15 @@ export async function GET(
 
     const payment = await prisma.payment.findUnique({
       where: { id: parsed.id },
-      select: { buyer_id: true, status: true },
+      select: {
+        id: true,
+        buyer_id: true,
+        status: true,
+        createdAt: true,
+        order_id: true,
+        amount: true,
+        currency: true,
+      },
     });
 
     if (!payment || payment.buyer_id !== userId) {
@@ -50,7 +110,7 @@ export async function GET(
     const encoder = new TextEncoder();
 
     const stream = new ReadableStream({
-      start(controller) {
+      async start(controller) {
         let closed = false;
         let interval: ReturnType<typeof setInterval> | null = null;
 
@@ -74,6 +134,10 @@ export async function GET(
           }
         };
 
+        // Check expiration before sending initial status
+        const expired = await checkAndExpire(payment, send, cleanup);
+        if (expired) return;
+
         // Send current status immediately
         send(`data: ${JSON.stringify({ status: payment.status })}\n\n`);
 
@@ -87,7 +151,15 @@ export async function GET(
           try {
             const current = await prisma.payment.findUnique({
               where: { id: parsed.id },
-              select: { status: true },
+              select: {
+                id: true,
+                status: true,
+                createdAt: true,
+                order_id: true,
+                buyer_id: true,
+                amount: true,
+                currency: true,
+              },
             });
 
             if (!current) {
@@ -97,6 +169,10 @@ export async function GET(
               cleanup();
               return;
             }
+
+            // Check expiration before emitting status
+            const expired = await checkAndExpire(current, send, cleanup);
+            if (expired) return;
 
             send(
               `data: ${JSON.stringify({ status: current.status })}\n\n`,
