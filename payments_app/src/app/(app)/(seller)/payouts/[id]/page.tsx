@@ -59,7 +59,7 @@ export default async function PayoutDetailPage({
           )}
           <div>
             <dt className="text-xs text-marron-tierra mb-1">Comprador</dt>
-            <dd className="text-xs text-verde-hoja font-mono">
+            <dd className="text-sm text-verde-hoja font-mono break-all">
               {payout.payment.buyer_id}
             </dd>
           </div>
@@ -67,11 +67,11 @@ export default async function PayoutDetailPage({
             <dt className="text-xs text-marron-tierra mb-1">
               ID de acreditación
             </dt>
-            <dd className="text-xs text-verde-hoja font-mono">{payout.id}</dd>
+            <dd className="text-sm text-verde-hoja font-mono break-all">{payout.id}</dd>
           </div>
           <div>
             <dt className="text-xs text-marron-tierra mb-1">ID de pago</dt>
-            <dd className="text-xs text-verde-hoja font-mono">
+            <dd className="text-sm text-verde-hoja font-mono break-all">
               {payout.payment_id}
             </dd>
           </div>

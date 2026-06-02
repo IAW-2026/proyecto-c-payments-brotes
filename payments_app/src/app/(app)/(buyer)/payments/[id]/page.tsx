@@ -59,11 +59,11 @@ export default async function PaymentDetailPage({
           )}
           <div>
             <dt className="text-xs text-marron-tierra mb-1">ID de pago</dt>
-            <dd className="text-xs text-verde-hoja font-mono">{payment.id}</dd>
+            <dd className="text-sm text-verde-hoja font-mono break-all">{payment.id}</dd>
           </div>
           <div>
             <dt className="text-xs text-marron-tierra mb-1">ID de orden</dt>
-            <dd className="text-xs text-verde-hoja font-mono">
+            <dd className="text-sm text-verde-hoja font-mono break-all">
               {payment.order_id}
             </dd>
           </div>
@@ -76,7 +76,7 @@ export default async function PaymentDetailPage({
         </dl>
 
         {payment.status === "pending" && payment.mp_init_point && (
-          <div>
+          <div className="flex flex-col gap-4">
             <hr className="border-beige" />
             <a
               href={payment.mp_init_point}

@@ -35,18 +35,18 @@ export function PaymentCard({
       `}
     >
       <div className="flex items-center justify-between gap-4">
-        <div className="flex flex-col gap-1 min-w-0">
-          <span className="text-xs text-verde-hoja font-mono truncate">
+        <div className="flex flex-col gap-1.5 min-w-0">
+          <span className="text-sm font-semibold text-verde-profundo truncate">
             {paymentId}
           </span>
           <span className="text-xs text-marron-tierra truncate">
             Orden {orderId}
-            {sellerEmail && (
-              <span className="text-xs text-marron-tierra truncate">
-                {sellerEmail}
-              </span>
-            )}
           </span>
+          {sellerEmail && (
+            <span className="text-xs text-marron-tierra truncate">
+              {sellerEmail}
+            </span>
+          )}
           <span className="text-xs text-gris-piedra">
             {formatDate(createdAt)}
           </span>
