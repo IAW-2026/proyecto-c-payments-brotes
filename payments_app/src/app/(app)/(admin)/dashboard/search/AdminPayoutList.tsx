@@ -13,6 +13,7 @@ interface Payout {
   status: PayoutStatus;
   createdAt: string;
   buyer_email?: string | null;
+  seller_email?: string | null;
 }
 
 export function AdminPayoutList({ payouts }: { payouts: Payout[] }) {
@@ -36,6 +37,7 @@ export function AdminPayoutList({ payouts }: { payouts: Payout[] }) {
           status={payout.status}
           createdAt={payout.createdAt}
           buyerEmail={payout.buyer_email ?? undefined}
+          sellerEmail={payout.seller_email ?? undefined}
         >
           <AdminPayoutActions payoutId={payout.id} status={payout.status} />
         </PayoutCard>

@@ -8,6 +8,7 @@ interface PayoutCardProps {
   status: PayoutStatus;
   createdAt: string;
   buyerEmail?: string;
+  sellerEmail?: string;
   onClick?: () => void;
   children?: React.ReactNode;
 }
@@ -19,6 +20,7 @@ export function PayoutCard({
   status,
   createdAt,
   buyerEmail,
+  sellerEmail,
   onClick,
   children,
 }: PayoutCardProps) {
@@ -45,6 +47,11 @@ export function PayoutCard({
           {buyerEmail && (
             <span className="text-xs text-marron-tierra truncate">
               {buyerEmail}
+            </span>
+          )}
+          {sellerEmail && (
+            <span className="text-xs text-marron-tierra truncate">
+              Vendedor: {sellerEmail}
             </span>
           )}
           <span className="text-xs text-gris-piedra">

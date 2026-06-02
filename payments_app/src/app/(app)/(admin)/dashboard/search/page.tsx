@@ -141,6 +141,7 @@ export default async function DashboardSearchPage({
     status: isPayoutStatus(p.status) ? p.status : ("pending" as const),
     createdAt: p.createdAt.toISOString(),
     buyer_email: p.buyer_email,
+    seller_email: p.seller_email,
   }));
 
   return (
