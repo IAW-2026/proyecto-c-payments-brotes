@@ -7,6 +7,7 @@ interface PaymentCardProps {
   amount: { value: number; currency: string };
   status: BadgeStatus;
   createdAt: string;
+  buyerEmail?: string;
   sellerEmail?: string;
   onClick?: () => void;
   children?: React.ReactNode;
@@ -18,6 +19,7 @@ export function PaymentCard({
   amount,
   status,
   createdAt,
+  buyerEmail,
   sellerEmail,
   onClick,
   children,
@@ -42,6 +44,11 @@ export function PaymentCard({
           <span className="text-xs text-marron-tierra truncate">
             Orden {orderId}
           </span>
+          {buyerEmail && (
+            <span className="text-xs text-marron-tierra truncate">
+              Comprador: {buyerEmail}
+            </span>
+          )}
           {sellerEmail && (
             <span className="text-xs text-marron-tierra truncate">
               {sellerEmail}

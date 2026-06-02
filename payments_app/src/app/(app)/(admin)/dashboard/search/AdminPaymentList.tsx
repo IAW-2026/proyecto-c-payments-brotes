@@ -12,6 +12,7 @@ interface Payment {
   currency: string;
   status: PaymentStatus;
   createdAt: string;
+  buyer_email?: string | null;
   seller_email?: string | null;
 }
 
@@ -35,6 +36,7 @@ export function AdminPaymentList({ payments }: { payments: Payment[] }) {
           amount={{ value: payment.amount, currency: payment.currency }}
           status={payment.status}
           createdAt={payment.createdAt}
+          buyerEmail={payment.buyer_email ?? undefined}
           sellerEmail={payment.seller_email ?? undefined}
         >
           <AdminPaymentActions paymentId={payment.id} status={payment.status} />
