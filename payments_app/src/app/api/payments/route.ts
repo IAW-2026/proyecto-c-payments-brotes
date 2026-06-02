@@ -84,6 +84,7 @@ export async function POST(req: NextRequest) {
         order_id: payment.order_id,
         status: payment.status,
         amount: { value: payment.amount, currency: payment.currency },
+        description: payment.description,
         created_at: payment.createdAt,
         ...mpData,
       },

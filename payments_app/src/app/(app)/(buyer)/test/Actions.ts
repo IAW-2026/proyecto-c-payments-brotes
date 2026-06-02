@@ -5,6 +5,7 @@ export interface PaymentResult {
   order_id: string;
   status: string;
   amount: { value: number; currency: string };
+  description?: string | null;
   created_at: string;
   mp_init_point?: string;
   error?: string;

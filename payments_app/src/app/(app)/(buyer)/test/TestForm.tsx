@@ -179,6 +179,11 @@ export function TestForm({
             <p>
               <span className="font-medium">Order:</span> {result.order_id}
             </p>
+            {result.description && (
+              <p>
+                <span className="font-medium">Descripción:</span> {result.description}
+              </p>
+            )}
             <p>
               <span className="font-medium">Status:</span> {result.status}
             </p>
