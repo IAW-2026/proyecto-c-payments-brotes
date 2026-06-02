@@ -15,7 +15,7 @@
 | Seller | seller+clerk_test@iaw.com | " |
 | Seller | seller2+clerk_test@iaw.com | " |
 | Seller | seller3+clerk_test@iaw.com | " |
-| Seller | sseller4+clerktest@iaw.com | " |
+| Seller | seller4+clerktest@iaw.com | " |
 | Seller | sellerpayment+clerck_test@iaw.com | " |
 | **Admin**| admin+clerk_test@iaw.com | " |
 
