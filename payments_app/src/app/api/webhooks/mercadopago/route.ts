@@ -175,7 +175,7 @@ async function processPayment(paymentId: string) {
         buyer_email: updatedPayment.buyer_email ?? null,
         amount: updatedPayment.amount,
         currency: updatedPayment.currency,
-        status: "pending",
+        status: "paid",
       },
     });
   }

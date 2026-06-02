@@ -117,7 +117,7 @@ export async function PATCH(
           buyer_email: updated.buyer_email ?? null,
           amount: updated.amount,
           currency: updated.currency,
-          status: "pending",
+          status: "paid",
         },
       });
     }
