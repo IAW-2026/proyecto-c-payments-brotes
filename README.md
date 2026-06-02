@@ -2,7 +2,7 @@
 
 ## Deploy de producción
 
-[URL del deploy]([#](https://proyecto-c-payments-brotes.vercel.app/))
+[URL del deploy](https://proyecto-c-payments-brotes.vercel.app/)
 
 ---
 
