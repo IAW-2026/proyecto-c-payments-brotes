@@ -21,7 +21,7 @@
 
 ---
 
-## Instrucciones para evaluar la aplicación
+## Instrucciones para ver flujo
 
 1. Loguearse con un usuario **buyer** para iniciar el flujo de pago
   + ir al apartado de test para producir un pago en pendiente
