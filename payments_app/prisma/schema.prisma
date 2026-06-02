@@ -42,6 +42,7 @@ model Payout {
   status       String   @default("pending") // pending | paid
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  accreditedAt DateTime?
   seller_email String?
   buyer_email  String?
 }
