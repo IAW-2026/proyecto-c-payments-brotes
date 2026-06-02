@@ -29,10 +29,10 @@
 3. Para probar un pago aprobado, usar las [tarjetas de prueba de MercadoPago](https://www.mercadopago.com.ar/developers/es/docs/checkout-pro/additional-content/your-integrations/test/cards)
 4. Los pagos en estado `pending` expiran automáticamente a los 5 minutos si la página de detalle permanece abierta — esto es configurable (se decidió 5 minutos para pruebas)
  +  Datos de mercadopago:
-   + usuario: TESTUSER1463505031370575893
-   + contraseña: JsNG7zRMeo
-   + Código de verificación: 108263
-   + Dinero inicial en cuenta: 50000 
+     + usuario: TESTUSER1463505031370575893
+     + contraseña: JsNG7zRMeo
+     + Código de verificación: 108263
+     + Dinero inicial en cuenta: 50000 
 ---
 
 ## Descripción del proyecto
