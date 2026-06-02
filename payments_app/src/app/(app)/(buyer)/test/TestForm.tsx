@@ -5,6 +5,7 @@ import { createPaymentAction, PaymentResult } from "./Actions";
 type Seller = { id: string; email: string; name: string };
 const fields = [
   { label: "Order ID", name: "order_id", type: "text" },
+  { label: "Descripción", name: "description", type: "text" },
   { label: "Monto", name: "amount", type: "number" },
   { label: "Moneda", name: "currency", type: "text" },
   { label: "Email del comprador", name: "buyer_email", type: "email" },

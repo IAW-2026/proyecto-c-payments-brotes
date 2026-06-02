@@ -21,6 +21,7 @@ export async function createPaymentAction(
     amount: parseFloat(formData.get("amount") as string),
     currency: formData.get("currency") || "ARS",
     buyer_email: formData.get("buyer_email") || undefined,
+    description: formData.get("description") || undefined,
   };
   const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/payments`, {
     method: "POST",
