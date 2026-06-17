@@ -55,19 +55,21 @@ async function checkAndExpire(
   send(`data: ${JSON.stringify({ status: "rejected" })}\n\n`);
 
   try {
-    await notifyRejectedPayment({
+    const rejectedRes = await notifyRejectedPayment({
       payment_id: payment.id,
       buyer_id: payment.buyer_id,
       amount: { value: payment.amount, currency: payment.currency },
       created_at: payment.createdAt.toISOString(),
     });
+    console.log("[SSE] rejected-payment acknowledged:", rejectedRes);
   } catch (e) {
     console.error("[SSE] Error notificando rejected-payment:", e);
   }
 
   if (payment.order_id) {
     try {
-      await notifyStockReservationRejected(payment.order_id);
+      const stockRejectRes = await notifyStockReservationRejected(payment.order_id);
+      console.log("[SSE] stock-reservation rejected acknowledged:", stockRejectRes);
     } catch (e) {
       console.error("[SSE] Error notificando stock-reservation reject:", e);
     }

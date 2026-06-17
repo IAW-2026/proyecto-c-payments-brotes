@@ -125,19 +125,21 @@ export async function PATCH(
     // ── Notificaciones a Buyer y Seller Apps ──────────────────────────────────
     if (newStatus === "approved") {
       try {
-        await notifyApprovedPayment({
+        const buyerRes = await notifyApprovedPayment({
           payment_id: updated.id,
           buyer_id: updated.buyer_id,
           amount: { value: updated.amount, currency: updated.currency },
           created_at: updated.createdAt.toISOString(),
         });
+        console.log("[PATCH /api/payments/:id] approved-payment acknowledged:", buyerRes);
       } catch (e) {
         console.error("[PATCH /api/payments/:id] Error notificando approved-payment:", e);
       }
 
       if (updated.order_id) {
         try {
-          await notifyStockReservationConfirmed(updated.order_id);
+          const stockConfirmRes = await notifyStockReservationConfirmed(updated.order_id);
+          console.log("[PATCH /api/payments/:id] stock-reservation confirmed acknowledged:", stockConfirmRes);
         } catch (e) {
           console.error("[PATCH /api/payments/:id] Error notificando stock-reservation confirm:", e);
         }
@@ -147,32 +149,35 @@ export async function PATCH(
 
       if (payout) {
         try {
-          await notifyIncomingPayout({
+          const payoutRes = await notifyIncomingPayout({
             payout_id: payout.id,
             payment_id: payout.payment_id,
             seller_id: payout.seller_id,
             amount: { value: payout.amount, currency: payout.currency },
             created_at: payout.createdAt.toISOString(),
           });
+          console.log("[PATCH /api/payments/:id] incoming-payout acknowledged:", payoutRes);
         } catch (e) {
           console.error("[PATCH /api/payments/:id] Error notificando incoming-payout:", e);
         }
       }
     } else if (newStatus === "rejected") {
       try {
-        await notifyRejectedPayment({
+        const rejectedRes = await notifyRejectedPayment({
           payment_id: updated.id,
           buyer_id: updated.buyer_id,
           amount: { value: updated.amount, currency: updated.currency },
           created_at: updated.createdAt.toISOString(),
         });
+        console.log("[PATCH /api/payments/:id] rejected-payment acknowledged:", rejectedRes);
       } catch (e) {
         console.error("[PATCH /api/payments/:id] Error notificando rejected-payment:", e);
       }
 
       if (updated.order_id) {
         try {
-          await notifyStockReservationRejected(updated.order_id);
+          const stockRejectRes = await notifyStockReservationRejected(updated.order_id);
+          console.log("[PATCH /api/payments/:id] stock-reservation rejected acknowledged:", stockRejectRes);
         } catch (e) {
           console.error("[PATCH /api/payments/:id] Error notificando stock-reservation reject:", e);
         }

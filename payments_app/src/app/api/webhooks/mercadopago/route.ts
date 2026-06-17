@@ -77,19 +77,21 @@ async function firePaymentNotifications(
 ) {
   if (newStatus === "approved") {
     try {
-      await notifyApprovedPayment({
+      const buyerRes = await notifyApprovedPayment({
         payment_id: payment.id,
         buyer_id: payment.buyer_id,
         amount: { value: payment.amount, currency: payment.currency },
         created_at: payment.createdAt.toISOString(),
       });
+      console.log("[MP Webhook] approved-payment acknowledged:", buyerRes);
     } catch (e) {
       console.error("[MP Webhook] Error notificando approved-payment:", e);
     }
 
     if (payment.order_id) {
       try {
-        await notifyStockReservationConfirmed(payment.order_id);
+        const stockConfirmRes = await notifyStockReservationConfirmed(payment.order_id);
+        console.log("[MP Webhook] stock-reservation confirmed acknowledged:", stockConfirmRes);
       } catch (e) {
         console.error("[MP Webhook] Error notificando stock-reservation confirm:", e);
       }
@@ -99,32 +101,35 @@ async function firePaymentNotifications(
 
     if (payout) {
       try {
-        await notifyIncomingPayout({
+        const payoutRes = await notifyIncomingPayout({
           payout_id: payout.id,
           payment_id: payout.payment_id,
           seller_id: payout.seller_id,
           amount: { value: payout.amount, currency: payout.currency },
           created_at: payout.createdAt.toISOString(),
         });
+        console.log("[MP Webhook] incoming-payout acknowledged:", payoutRes);
       } catch (e) {
         console.error("[MP Webhook] Error notificando incoming-payout:", e);
       }
     }
   } else if (newStatus === "rejected") {
     try {
-      await notifyRejectedPayment({
+      const rejectedRes = await notifyRejectedPayment({
         payment_id: payment.id,
         buyer_id: payment.buyer_id,
         amount: { value: payment.amount, currency: payment.currency },
         created_at: payment.createdAt.toISOString(),
       });
+      console.log("[MP Webhook] rejected-payment acknowledged:", rejectedRes);
     } catch (e) {
       console.error("[MP Webhook] Error notificando rejected-payment:", e);
     }
 
     if (payment.order_id) {
       try {
-        await notifyStockReservationRejected(payment.order_id);
+        const stockRejectRes = await notifyStockReservationRejected(payment.order_id);
+        console.log("[MP Webhook] stock-reservation rejected acknowledged:", stockRejectRes);
       } catch (e) {
         console.error("[MP Webhook] Error notificando stock-reservation reject:", e);
       }
