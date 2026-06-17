@@ -127,7 +127,7 @@ export async function PATCH(
       try {
         const buyerRes = await notifyApprovedPayment({
           payment_id: updated.id,
-          buyer_id: updated.buyer_id,
+          buyer_id: updated.buyer_internal_id ?? updated.buyer_id,
           amount: { value: updated.amount, currency: updated.currency },
           created_at: updated.createdAt.toISOString(),
         });
@@ -152,7 +152,7 @@ export async function PATCH(
           const payoutRes = await notifyIncomingPayout({
             payout_id: payout.id,
             payment_id: payout.payment_id,
-            seller_id: payout.seller_id,
+            seller_id: payout.seller_internal_id ?? payout.seller_id,
             amount: { value: payout.amount, currency: payout.currency },
             created_at: payout.createdAt.toISOString(),
           });
@@ -165,7 +165,7 @@ export async function PATCH(
       try {
         const rejectedRes = await notifyRejectedPayment({
           payment_id: updated.id,
-          buyer_id: updated.buyer_id,
+          buyer_id: updated.buyer_internal_id ?? updated.buyer_id,
           amount: { value: updated.amount, currency: updated.currency },
           created_at: updated.createdAt.toISOString(),
         });

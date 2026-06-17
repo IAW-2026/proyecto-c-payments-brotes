@@ -35,6 +35,7 @@ async function checkAndExpire(
     createdAt: Date;
     order_id: string;
     buyer_id: string;
+    buyer_internal_id: number | null;
     amount: number;
     currency: string;
   },
@@ -57,7 +58,7 @@ async function checkAndExpire(
   try {
     const rejectedRes = await notifyRejectedPayment({
       payment_id: payment.id,
-      buyer_id: payment.buyer_id,
+      buyer_id: payment.buyer_internal_id ?? payment.buyer_id,
       amount: { value: payment.amount, currency: payment.currency },
       created_at: payment.createdAt.toISOString(),
     });
@@ -97,6 +98,7 @@ export async function GET(
       select: {
         id: true,
         buyer_id: true,
+        buyer_internal_id: true,
         status: true,
         createdAt: true,
         order_id: true,
@@ -159,6 +161,7 @@ export async function GET(
                 createdAt: true,
                 order_id: true,
                 buyer_id: true,
+                buyer_internal_id: true,
                 amount: true,
                 currency: true,
               },

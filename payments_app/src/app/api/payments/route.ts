@@ -29,6 +29,8 @@ export async function POST(req: NextRequest) {
       currency,
       description,
       buyer_email,
+      buyer_internal_id,
+      seller_internal_id,
     } = result.data;
     const clerk = await clerkClient();
     let sellerEmail: string | null = null;
@@ -52,7 +54,9 @@ export async function POST(req: NextRequest) {
         status: "pending",
         description: description ?? null,
         buyer_email: buyer_email || null,
-        seller_email: sellerEmail, // nuevo
+        seller_email: sellerEmail,
+        buyer_internal_id: buyer_internal_id ?? null,
+        seller_internal_id: seller_internal_id ?? null,
       },
     });
 

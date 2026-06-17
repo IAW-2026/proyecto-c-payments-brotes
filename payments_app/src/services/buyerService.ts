@@ -41,7 +41,7 @@ export async function getOrder(orderId: string) {
 // POST /api/approved-payment
 export async function notifyApprovedPayment(data: {
   payment_id: string;
-  buyer_id: string;
+  buyer_id: string | number;
   amount: { value: number; currency: string };
   created_at: string;
 }) {
@@ -67,7 +67,7 @@ export async function notifyApprovedPayment(data: {
 // POST /api/rejected-payment
 export async function notifyRejectedPayment(data: {
   payment_id: string;
-  buyer_id: string;
+  buyer_id: string | number;
   amount: { value: number; currency: string };
   created_at: string;
 }) {

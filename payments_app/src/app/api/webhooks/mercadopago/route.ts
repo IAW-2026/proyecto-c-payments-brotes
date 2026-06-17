@@ -62,6 +62,7 @@ async function firePaymentNotifications(
     id: string;
     order_id: string;
     buyer_id: string;
+    buyer_internal_id: number | null;
     amount: number;
     currency: string;
     createdAt: Date;
@@ -70,6 +71,7 @@ async function firePaymentNotifications(
     id: string;
     payment_id: string;
     seller_id: string;
+    seller_internal_id: number | null;
     amount: number;
     currency: string;
     createdAt: Date;
@@ -79,7 +81,7 @@ async function firePaymentNotifications(
     try {
       const buyerRes = await notifyApprovedPayment({
         payment_id: payment.id,
-        buyer_id: payment.buyer_id,
+        buyer_id: payment.buyer_internal_id ?? payment.buyer_id,
         amount: { value: payment.amount, currency: payment.currency },
         created_at: payment.createdAt.toISOString(),
       });
@@ -104,7 +106,7 @@ async function firePaymentNotifications(
         const payoutRes = await notifyIncomingPayout({
           payout_id: payout.id,
           payment_id: payout.payment_id,
-          seller_id: payout.seller_id,
+          seller_id: payout.seller_internal_id ?? payout.seller_id,
           amount: { value: payout.amount, currency: payout.currency },
           created_at: payout.createdAt.toISOString(),
         });
@@ -117,7 +119,7 @@ async function firePaymentNotifications(
     try {
       const rejectedRes = await notifyRejectedPayment({
         payment_id: payment.id,
-        buyer_id: payment.buyer_id,
+        buyer_id: payment.buyer_internal_id ?? payment.buyer_id,
         amount: { value: payment.amount, currency: payment.currency },
         created_at: payment.createdAt.toISOString(),
       });

@@ -10,7 +10,7 @@ const headers = {
 export async function notifyIncomingPayout(data: {
   payout_id: string;
   payment_id: string;
-  seller_id: string;
+  seller_id: string | number;
   amount: { value: number; currency: string };
   created_at: string;
 }) {

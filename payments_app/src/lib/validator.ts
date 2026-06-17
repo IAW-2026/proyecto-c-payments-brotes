@@ -58,6 +58,18 @@ export const CreatePaymentSchema = z.object({
     .email("buyer_email debe ser un email válido.")
     .optional()
     .or(z.literal("")),
+
+  buyer_internal_id: z
+    .number()
+    .int("buyer_internal_id debe ser un entero.")
+    .positive("buyer_internal_id debe ser positivo.")
+    .optional(),
+
+  seller_internal_id: z
+    .number()
+    .int("seller_internal_id debe ser un entero.")
+    .positive("seller_internal_id debe ser positivo.")
+    .optional(),
 });
 
 export type CreatePaymentInput = z.infer<typeof CreatePaymentSchema>;
