@@ -33,6 +33,20 @@ export async function notifyIncomingPayout(data: {
   return res.json();
 }
 
+// GET /api/sellers — filtra por id para obtener el email del seller
+export async function getSellerEmail(sellerId: string | number) {
+  /*if (process.env.NODE_ENV === "development") {
+    return `seller+${sellerId}@example.com`;
+    }*/
+
+  const res = await fetch(`${SELLER_APP_URL}/api/sellers`, { headers });
+  if (!res.ok) throw new Error("Failed to fetch sellers");
+
+  const sellers: { id: number; email: string }[] = await res.json();
+  const seller = sellers.find((s) => String(s.id) === String(sellerId));
+  return seller?.email ?? null;
+}
+
 // POST /api/stock-reservations/:orderId/confirm
 export async function notifyStockReservationConfirmed(orderId: string) {
   if (process.env.NODE_ENV === "development") {
