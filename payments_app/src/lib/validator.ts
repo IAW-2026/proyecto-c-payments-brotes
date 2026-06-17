@@ -17,19 +17,19 @@ const VALID_CURRENCIES = ["ARS", "USD", "BRL", "CLP", "COP", "MXN"] as const;
 
 export const CreatePaymentSchema = z.object({
   order_id: z
-    .string({ error: "order_id es obligatorio." })
-    .trim()
-    .min(1, "order_id no puede estar vacío."),
+    .union([z.string(), z.number()])
+    .transform(String)
+    .pipe(z.string().trim().min(1, "order_id no puede estar vacío.")),
 
   buyer_id: z
-    .string({ error: "buyer_id es obligatorio." })
-    .trim()
-    .min(1, "buyer_id no puede estar vacío."),
+    .union([z.string(), z.number()])
+    .transform(String)
+    .pipe(z.string().trim().min(1, "buyer_id no puede estar vacío.")),
 
   seller_id: z
-    .string({ error: "seller_id es obligatorio." })
-    .trim()
-    .min(1, "seller_id no puede estar vacío."),
+    .union([z.string(), z.number()])
+    .transform(String)
+    .pipe(z.string().trim().min(1, "seller_id no puede estar vacío.")),
 
   amount: z
     .number({
