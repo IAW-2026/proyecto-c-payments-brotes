@@ -6,6 +6,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    console.log("[POST /api/payments] body recibido:", body);
 
     const result = CreatePaymentSchema.safeParse(body);
     if (!result.success) {
@@ -81,6 +82,8 @@ export async function POST(req: NextRequest) {
         mp_init_point: preference.init_point,
       };
     }
+
+    console.log("[POST /api/payments] payment creado:", payment.id);
 
     return NextResponse.json(
       {

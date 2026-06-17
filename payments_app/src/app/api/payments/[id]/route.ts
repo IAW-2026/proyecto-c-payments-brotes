@@ -72,6 +72,7 @@ export async function PATCH(
     if ("error" in parsed) return parsed.error;
 
     const body = await req.json();
+    console.log("[PATCH /api/payments/:id] body recibido:", body);
     const bodyResult = UpdatePaymentStatusSchema.safeParse(body);
     if (!bodyResult.success) {
       return NextResponse.json(
