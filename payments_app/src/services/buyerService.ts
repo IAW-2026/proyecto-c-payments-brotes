@@ -54,7 +54,7 @@ export async function notifyApprovedPayment(data: {
     };
   }
 
-  const res = await fetch(`${BUYER_APP_URL}/api/approved-payment`, {
+  const res = await fetch(`${BUYER_APP_URL}/api/approved-payment/${data.payment_id}`, {
     method: "POST",
     headers,
     body: JSON.stringify(data),
@@ -80,7 +80,7 @@ export async function notifyRejectedPayment(data: {
     };
   }
 
-  const res = await fetch(`${BUYER_APP_URL}/api/rejected-payment`, {
+  const res = await fetch(`${BUYER_APP_URL}/api/rejected-payment/${data.payment_id}`, {
     method: "POST",
     headers,
     body: JSON.stringify(data),
