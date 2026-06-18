@@ -1,8 +1,8 @@
 const BUYER_APP_URL = process.env.BUYER_APP_URL ?? "http://localhost:3001";
-const BUYER_APP_API_KEY = process.env.BUYER_APP_API_KEY ?? "";
+const BUYER_SERVICE_API_KEY = process.env.BUYER_SERVICE_API_KEY ?? "";
 const headers = {
   "Content-Type": "application/json",
-  Authorization: `Bearer ${BUYER_APP_API_KEY}`,
+  Authorization: `Bearer ${BUYER_SERVICE_API_KEY}`,
 };
 
 // GET /api/orders/:id

@@ -1,9 +1,9 @@
 const SELLER_APP_URL = process.env.SELLER_APP_URL ?? "http://localhost:3002";
-const SELLER_APP_API_KEY = process.env.SELLER_APP_API_KEY ?? "";
+const SELLER_SERVICE_API_KEY = process.env.SELLER_SERVICE_API_KEY ?? "";
 
 const headers = {
   "Content-Type": "application/json",
-  Authorization: `Bearer ${SELLER_APP_API_KEY}`,
+  Authorization: `Bearer ${SELLER_SERVICE_API_KEY}`,
 };
 
 // POST /api/incoming-payouts
