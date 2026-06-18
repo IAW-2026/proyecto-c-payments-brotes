@@ -35,16 +35,47 @@ export async function notifyIncomingPayout(data: {
 
 // GET /api/sellers — filtra por id para obtener el email del seller
 export async function getSellerEmail(sellerId: string | number) {
-  /*if (process.env.NODE_ENV === "development") {
-    return `seller+${sellerId}@example.com`;
-    }*/
+  console.log("[sellerService][getSellerEmail] sellerId:", sellerId);
 
-  const res = await fetch(`${SELLER_APP_URL}/api/sellers`, { headers });
-  if (!res.ok) throw new Error("Failed to fetch sellers");
+  /*if (process.env.NODE_ENV === "development") {
+    console.log(
+      "[sellerService][getSellerEmail] modo development, devolviendo mock",
+    );
+    return `seller+${sellerId}@example.com`;
+  }*/
+
+  const url = `${SELLER_APP_URL}/api/sellers`;
+
+  console.log("[sellerService][getSellerEmail] GET", url);
+
+  const res = await fetch(url, { headers });
+
+  console.log("[sellerService][getSellerEmail] status:", res.status);
+
+  if (!res.ok) {
+    console.error("[sellerService][getSellerEmail] error al obtener sellers");
+    throw new Error("Failed to fetch sellers");
+  }
 
   const sellers: { id: number; email: string }[] = await res.json();
+
+  console.log(
+    "[sellerService][getSellerEmail] sellers recibidos:",
+    sellers.length,
+  );
+
   const seller = sellers.find((s) => String(s.id) === String(sellerId));
-  return seller?.email ?? null;
+
+  console.log(
+    "[sellerService][getSellerEmail] seller encontrado:",
+    seller ? JSON.stringify(seller) : "null",
+  );
+
+  const email = seller?.email ?? null;
+
+  console.log("[sellerService][getSellerEmail] email retornado:", email);
+
+  return email;
 }
 
 // POST /api/stock-reservations/:orderId/confirm
