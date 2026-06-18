@@ -48,33 +48,50 @@ export async function getSellerEmail(sellerId: string | number) {
 }
 
 // POST /api/stock-reservations/:orderId/confirm
-export async function notifyStockReservationConfirmed(orderId: string) {
-  if (process.env.NODE_ENV === "development") {
-    return { acknowledged: true, order_id: orderId };
-  }
-
-  const res = await fetch(
-    `${SELLER_APP_URL}/api/stock-reservations/${orderId}/confirm`,
-    { method: "POST", headers },
+export async function notifyStockReservationConfirmed(
+  buyerOrderId?: string | number,
+) {
+  console.log(
+    "[sellerService][notifyStockReservationConfirmed] orderId:-- | buyerOrderId:",
+    buyerOrderId,
   );
 
+  if (process.env.NODE_ENV === "development") {
+    console.log(
+      "[sellerService][notifyStockReservationConfirmed] modo development, devolviendo mock",
+    );
+    return { acknowledged: true, buyer_order_id: buyerOrderId };
+  }
+
+  const url = `${SELLER_APP_URL}/api/stock-reservations/${buyerOrderId}/confirm`;
+  const payload = {
+    buyer_order_id: buyerOrderId ? String(buyerOrderId) : undefined,
+    confirmed_at: new Date().toISOString(),
+  };
+
+  console.log("[sellerService][notifyStockReservationConfirmed] POST", url);
+  console.log(
+    "[sellerService][notifyStockReservationConfirmed] payload:",
+    JSON.stringify(payload),
+  );
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(payload),
+  });
+
+  console.log(
+    "[sellerService][notifyStockReservationConfirmed] status:",
+    res.status,
+  );
   if (!res.ok)
     throw new Error("Failed to notify stock reservation confirmed to Seller");
-  return res.json();
-}
 
-// POST /api/stock-reservations/:orderId/reject
-export async function notifyStockReservationRejected(orderId: string) {
-  if (process.env.NODE_ENV === "development") {
-    return { acknowledged: true, order_id: orderId };
-  }
-
-  const res = await fetch(
-    `${SELLER_APP_URL}/api/stock-reservations/${orderId}/reject`,
-    { method: "POST", headers },
+  const data = await res.json();
+  console.log(
+    "[sellerService][notifyStockReservationConfirmed] respuesta:",
+    JSON.stringify(data),
   );
-
-  if (!res.ok)
-    throw new Error("Failed to notify stock reservation rejected to Seller");
-  return res.json();
+  return data;
 }
