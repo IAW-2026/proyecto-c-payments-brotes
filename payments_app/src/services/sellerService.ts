@@ -57,7 +57,8 @@ export async function getSellerEmail(sellerId: string | number) {
     throw new Error("Failed to fetch sellers");
   }
 
-  const sellers: { id: number; email: string }[] = await res.json();
+  const { sellers }: { sellers: { id: number; email: string }[] } =
+    await res.json();
 
   console.log(
     "[sellerService][getSellerEmail] sellers recibidos:",
