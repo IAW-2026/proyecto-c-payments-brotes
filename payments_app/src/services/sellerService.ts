@@ -95,3 +95,43 @@ export async function notifyStockReservationConfirmed(
   );
   return data;
 }
+
+export async function notifyStockReservationRejected(orderId: string) {
+  console.log(
+    "[sellerService][notifyStockReservationRejected] orderId:",
+    orderId,
+  );
+
+  if (process.env.NODE_ENV === "development") {
+    console.log(
+      "[sellerService][notifyStockReservationRejected] modo development, devolviendo mock",
+    );
+    return { acknowledged: true, order_id: orderId };
+  }
+
+  const url = `${SELLER_APP_URL}/api/stock-reservations/${orderId}/reject`;
+
+  console.log("[sellerService][notifyStockReservationRejected] POST", url);
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers,
+  });
+
+  console.log(
+    "[sellerService][notifyStockReservationRejected] status:",
+    res.status,
+  );
+
+  if (!res.ok)
+    throw new Error("Failed to notify stock reservation rejected to Seller");
+
+  const data = await res.json();
+
+  console.log(
+    "[sellerService][notifyStockReservationRejected] respuesta:",
+    JSON.stringify(data),
+  );
+
+  return data;
+}
