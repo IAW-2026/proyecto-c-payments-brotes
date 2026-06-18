@@ -1,6 +1,5 @@
 const BUYER_APP_URL = process.env.BUYER_APP_URL ?? "http://localhost:3001";
 const BUYER_APP_API_KEY = process.env.BUYER_APP_API_KEY ?? "";
-
 const headers = {
   "Content-Type": "application/json",
   Authorization: `Bearer ${BUYER_APP_API_KEY}`,
@@ -8,8 +7,10 @@ const headers = {
 
 // GET /api/orders/:id
 export async function getOrder(orderId: string) {
-  // MOCK para desarrollo
+  console.log("[buyerService][getOrder] orderId:", orderId);
+
   if (process.env.NODE_ENV === "development") {
+    console.log("[buyerService][getOrder] modo development, devolviendo mock");
     return {
       id: orderId,
       buyer_id: "usr_456",
@@ -30,12 +31,17 @@ export async function getOrder(orderId: string) {
     };
   }
 
-  const res = await fetch(`${BUYER_APP_URL}/api/orders/${orderId}`, {
-    headers,
-  });
+  const url = `${BUYER_APP_URL}/api/orders/${orderId}`;
+  console.log("[buyerService][getOrder] GET", url);
 
+  const res = await fetch(url, { headers });
+
+  console.log("[buyerService][getOrder] status:", res.status);
   if (!res.ok) throw new Error(`Failed to fetch order ${orderId}`);
-  return res.json();
+
+  const data = await res.json();
+  console.log("[buyerService][getOrder] respuesta:", JSON.stringify(data));
+  return data;
 }
 
 // POST /api/approved-payment
@@ -45,8 +51,15 @@ export async function notifyApprovedPayment(data: {
   amount: { value: number; currency: string };
   created_at: string;
 }) {
-  // MOCK para desarrollo
+  console.log(
+    "[buyerService][notifyApprovedPayment] payload:",
+    JSON.stringify(data),
+  );
+
   if (process.env.NODE_ENV === "development") {
+    console.log(
+      "[buyerService][notifyApprovedPayment] modo development, devolviendo mock",
+    );
     return {
       acknowledged: true,
       payment_id: data.payment_id,
@@ -54,14 +67,24 @@ export async function notifyApprovedPayment(data: {
     };
   }
 
-  const res = await fetch(`${BUYER_APP_URL}/api/approved-payment/${data.payment_id}`, {
+  const url = `${BUYER_APP_URL}/api/approved-payment/${data.payment_id}`;
+  console.log("[buyerService][notifyApprovedPayment] POST", url);
+
+  const res = await fetch(url, {
     method: "POST",
     headers,
     body: JSON.stringify(data),
   });
 
+  console.log("[buyerService][notifyApprovedPayment] status:", res.status);
   if (!res.ok) throw new Error("Failed to notify approved payment to Buyer");
-  return res.json();
+
+  const responseData = await res.json();
+  console.log(
+    "[buyerService][notifyApprovedPayment] respuesta:",
+    JSON.stringify(responseData),
+  );
+  return responseData;
 }
 
 // POST /api/rejected-payment
@@ -71,8 +94,15 @@ export async function notifyRejectedPayment(data: {
   amount: { value: number; currency: string };
   created_at: string;
 }) {
-  // MOCK para desarrollo
+  console.log(
+    "[buyerService][notifyRejectedPayment] payload:",
+    JSON.stringify(data),
+  );
+
   if (process.env.NODE_ENV === "development") {
+    console.log(
+      "[buyerService][notifyRejectedPayment] modo development, devolviendo mock",
+    );
     return {
       acknowledged: true,
       payment_id: data.payment_id,
@@ -80,12 +110,22 @@ export async function notifyRejectedPayment(data: {
     };
   }
 
-  const res = await fetch(`${BUYER_APP_URL}/api/rejected-payment/${data.payment_id}`, {
+  const url = `${BUYER_APP_URL}/api/rejected-payment/${data.payment_id}`;
+  console.log("[buyerService][notifyRejectedPayment] POST", url);
+
+  const res = await fetch(url, {
     method: "POST",
     headers,
     body: JSON.stringify(data),
   });
 
+  console.log("[buyerService][notifyRejectedPayment] status:", res.status);
   if (!res.ok) throw new Error("Failed to notify rejected payment to Buyer");
-  return res.json();
+
+  const responseData = await res.json();
+  console.log(
+    "[buyerService][notifyRejectedPayment] respuesta:",
+    JSON.stringify(responseData),
+  );
+  return responseData;
 }
