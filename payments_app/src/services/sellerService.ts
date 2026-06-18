@@ -96,20 +96,20 @@ export async function notifyStockReservationConfirmed(
   return data;
 }
 
-export async function notifyStockReservationRejected(orderId: string) {
+export async function notifyStockReservationRejected(buyerOrderId: string) {
   console.log(
     "[sellerService][notifyStockReservationRejected] orderId:",
-    orderId,
+    buyerOrderId,
   );
 
   if (process.env.NODE_ENV === "development") {
     console.log(
       "[sellerService][notifyStockReservationRejected] modo development, devolviendo mock",
     );
-    return { acknowledged: true, order_id: orderId };
+    return { acknowledged: true, order_id: buyerOrderId };
   }
 
-  const url = `${SELLER_APP_URL}/api/stock-reservations/${orderId}/reject`;
+  const url = `${SELLER_APP_URL}/api/stock-reservations/${buyerOrderId}/reject`;
 
   console.log("[sellerService][notifyStockReservationRejected] POST", url);
 
