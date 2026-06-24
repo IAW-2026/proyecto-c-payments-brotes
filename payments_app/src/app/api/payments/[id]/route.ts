@@ -163,6 +163,10 @@ export async function PATCH(
         }
       }
     } else if (newStatus === "rejected") {
+      console.log(
+        "[PATCH /api/payments/:id] Rechazando payment:", parsed.id,
+        "— notificando a Buyer y Seller",
+      );
       try {
         const rejectedRes = await notifyRejectedPayment({
           payment_id: updated.id,

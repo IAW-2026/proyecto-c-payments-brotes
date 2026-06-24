@@ -26,7 +26,8 @@ async function parseId(params: Promise<{ id: string }>) {
 }
 
 const TERMINAL_STATUSES = new Set(["approved", "rejected"]);
-const EXPIRATION_MINUTES = 5;
+// TODO: cambiar una vez se haya solucionado el problema de la notificación de pago rechazado
+const EXPIRATION_MINUTES = 1;
 
 async function checkAndExpire(
   payment: {
@@ -48,10 +49,17 @@ async function checkAndExpire(
     (Date.now() - payment.createdAt.getTime()) / 1000 / 60;
   if (minutesElapsed <= EXPIRATION_MINUTES) return false;
 
+  console.log(
+    "[SSE][checkAndExpire] Payment", payment.id,
+    "ha expirado (", minutesElapsed.toFixed(1), "min), marcando como rejected",
+  );
+
   await prisma.payment.update({
     where: { id: payment.id },
     data: { status: "rejected" },
   });
+
+  console.log("[SSE][checkAndExpire] Payment", payment.id, "actualizado a rejected en BD");
 
   send(`data: ${JSON.stringify({ status: "rejected" })}\n\n`);
 
