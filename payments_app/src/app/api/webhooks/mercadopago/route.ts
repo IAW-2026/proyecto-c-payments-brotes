@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import MercadoPagoConfig, { Payment } from "mercadopago";
 import { createHmac } from "crypto";
-import { notifyApprovedPayment, notifyRejectedPayment } from "@/services/buyerService";
+import {
+  notifyApprovedPayment,
+  notifyRejectedPayment,
+} from "@/services/buyerService";
 import {
   notifyIncomingPayout,
   notifyStockReservationConfirmed,
@@ -92,13 +95,23 @@ async function firePaymentNotifications(
 
     if (payment.order_id) {
       try {
-        const stockConfirmRes = await notifyStockReservationConfirmed(payment.order_id);
-        console.log("[MP Webhook] stock-reservation confirmed acknowledged:", stockConfirmRes);
+        const stockConfirmRes = await notifyStockReservationConfirmed(
+          payment.order_id,
+        );
+        console.log(
+          "[MP Webhook] stock-reservation confirmed acknowledged:",
+          stockConfirmRes,
+        );
       } catch (e) {
-        console.error("[MP Webhook] Error notificando stock-reservation confirm:", e);
+        console.error(
+          "[MP Webhook] Error notificando stock-reservation confirm:",
+          e,
+        );
       }
     } else {
-      console.warn("[MP Webhook] order_id es null, saltando notificación de stock");
+      console.warn(
+        "[MP Webhook] order_id es null, saltando notificación de stock",
+      );
     }
 
     if (payout) {
@@ -130,13 +143,23 @@ async function firePaymentNotifications(
 
     if (payment.order_id) {
       try {
-        const stockRejectRes = await notifyStockReservationRejected(payment.order_id);
-        console.log("[MP Webhook] stock-reservation rejected acknowledged:", stockRejectRes);
+        const stockRejectRes = await notifyStockReservationRejected(
+          payment.order_id,
+        );
+        console.log(
+          "[MP Webhook] stock-reservation rejected acknowledged:",
+          stockRejectRes,
+        );
       } catch (e) {
-        console.error("[MP Webhook] Error notificando stock-reservation reject:", e);
+        console.error(
+          "[MP Webhook] Error notificando stock-reservation reject:",
+          e,
+        );
       }
     } else {
-      console.warn("[MP Webhook] order_id es null, saltando notificación de stock");
+      console.warn(
+        "[MP Webhook] order_id es null, saltando notificación de stock",
+      );
     }
   }
 }
@@ -166,10 +189,26 @@ async function processPayment(paymentId: string) {
 
   const newStatus = statusMap[status ?? ""] ?? "pending";
 
+  console.log(
+    "[MP Webhook][processPayment] Payment",
+    externalReference,
+    "— status MP:",
+    status,
+    "→ mapeado a:",
+    newStatus,
+  );
+
   const updatedPayment = await prisma.payment.update({
     where: { id: externalReference },
     data: { status: newStatus },
   });
+
+  console.log(
+    "[MP Webhook][processPayment] Payment",
+    externalReference,
+    "actualizado en BD:",
+    updatedPayment.status,
+  );
 
   let payout = null;
 
