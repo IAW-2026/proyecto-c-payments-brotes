@@ -127,8 +127,10 @@ export async function notifyStockReservationConfirmed(
   );
   return data;
 }
-
-export async function notifyStockReservationRejected(buyerOrderId: string) {
+//por qué buyerOrderId es opcional??
+export async function notifyStockReservationRejected(
+  buyerOrderId?: string | number,
+) {
   console.log(
     "[sellerService][notifyStockReservationRejected] orderId:",
     buyerOrderId,
