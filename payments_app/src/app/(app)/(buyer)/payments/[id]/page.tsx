@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
@@ -14,6 +14,9 @@ export default async function PaymentDetailPage({
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
+  const user = await currentUser();
+  const userEmail = user?.emailAddresses?.[0]?.emailAddress;
+
   const { id } = await params;
 
   const payment = await prisma.payment.findUnique({
@@ -21,7 +24,7 @@ export default async function PaymentDetailPage({
   });
 
   // No existe o no pertenece al buyer autenticado
-  if (!payment || payment.buyer_id !== userId) notFound();
+  if (!payment || (payment.buyer_id !== userId && payment.buyer_email !== userEmail)) notFound();
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-10">

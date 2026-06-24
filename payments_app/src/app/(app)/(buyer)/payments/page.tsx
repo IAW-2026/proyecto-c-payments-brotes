@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PaymentList } from "@/components/ui/PaymentsList";
@@ -24,6 +24,9 @@ export default async function BuyerPaymentsPage({
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
+  const user = await currentUser();
+  const userEmail = user?.emailAddresses?.[0]?.emailAddress;
+
   const sp = await searchParams;
 
   const currentStatus = parsePaymentStatus(sp.status);
@@ -36,19 +39,29 @@ export default async function BuyerPaymentsPage({
 
   const { page, skip, take } = getPaginationParams({ page: sp.page });
 
-  const where = {
-    buyer_id: userId,
-    ...(statusForPrisma(currentStatus) && {
-      status: statusForPrisma(currentStatus),
-    }),
-    ...(currentSearch && {
+  const andConditions: Record<string, unknown>[] = [
+    {
       OR: [
-        { description: { contains: currentSearch, mode: "insensitive" as const } },
-        { seller_email: { contains: currentSearch, mode: "insensitive" as const } },
+        { buyer_id: userId },
+        ...(userEmail ? [{ buyer_email: userEmail }] : []),
       ],
-    }),
-    ...(dateRange && { createdAt: dateRange }),
-  };
+    },
+    ...(statusForPrisma(currentStatus)
+      ? [{ status: statusForPrisma(currentStatus) }]
+      : []),
+    ...(currentSearch
+      ? [
+          {
+            OR: [
+              { description: { contains: currentSearch, mode: "insensitive" as const } },
+              { seller_email: { contains: currentSearch, mode: "insensitive" as const } },
+            ],
+          },
+        ]
+      : []),
+    ...(dateRange ? [{ createdAt: dateRange }] : []),
+  ];
+  const where = { AND: andConditions };
 
   const [payments, total] = await Promise.all([
     prisma.payment.findMany({
