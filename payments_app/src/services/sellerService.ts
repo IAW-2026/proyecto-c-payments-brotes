@@ -1,4 +1,4 @@
-const SELLER_APP_URL = process.env.SELLER_APP_URL ?? "http://localhost:3002";
+const SELLER_APP_URL = (process.env.SELLER_APP_URL ?? "http://localhost:3002").replace(/\/+$/, "");
 const SELLER_SERVICE_API_KEY = process.env.SELLER_SERVICE_API_KEY ?? "";
 
 const headers = {

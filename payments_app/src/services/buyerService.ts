@@ -1,4 +1,4 @@
-const BUYER_APP_URL = process.env.BUYER_APP_URL ?? "http://localhost:3001";
+const BUYER_APP_URL = (process.env.BUYER_APP_URL ?? "http://localhost:3001").replace(/\/+$/, "");
 const BUYER_SERVICE_API_KEY = process.env.BUYER_SERVICE_API_KEY ?? "";
 const headers = {
   "Content-Type": "application/json",
