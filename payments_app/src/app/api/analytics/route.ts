@@ -24,16 +24,16 @@ const STATUS_MAP: Record<string, string> = {
   // Estados de nuestra app
   pending: "pendiente",
   approved: "confirmada",
-  rejected: "caducada",
+  rejected: "rechazada",
 
   // Estados de MercadoPago que pueden persistir en BD
   in_process: "pendiente",
   in_mediation: "pendiente",
   authorized: "pendiente",
 
-  cancelled: "caducada",
-  refunded: "caducada",
-  charged_back: "caducada",
+  cancelled: "rechazada",
+  refunded: "rechazada",
+  charged_back: "rechazada",
 };
 
 function mapPaymentStatus(rawStatus: string | null | undefined): string {
