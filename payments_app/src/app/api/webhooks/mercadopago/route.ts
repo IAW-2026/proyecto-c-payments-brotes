@@ -62,7 +62,7 @@ function verifyMPSignature(req: NextRequest): boolean {
 async function firePaymentNotifications(
   newStatus: string,
   payment: {
-    id: string;
+    id: number;
     order_id: string;
     buyer_id: string;
     buyer_internal_id: number | null;
@@ -72,7 +72,7 @@ async function firePaymentNotifications(
   },
   payout?: {
     id: string;
-    payment_id: string;
+    payment_id: number;
     seller_id: string;
     seller_internal_id: number | null;
     amount: number;
@@ -200,7 +200,7 @@ async function processPayment(paymentId: string) {
   );
 
   const updatedPayment = await prisma.payment.update({
-    where: { id: externalReference },
+    where: { id: Number(externalReference) },
     data: { status: newStatus, payment_type: paymentType },
   });
 

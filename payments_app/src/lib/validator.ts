@@ -82,10 +82,7 @@ export const SellerIdSchema = z.object({
 });
 
 export const PaymentIdSchema = z.object({
-  id: z
-    .string({ error: "id es obligatorio." })
-    .trim()
-    .min(1, "id no puede estar vacío."),
+  id: z.coerce.number().int().positive("id debe ser un entero positivo."),
 });
 
 export const UpdatePaymentStatusSchema = z.object({

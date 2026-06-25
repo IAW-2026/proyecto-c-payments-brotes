@@ -6,8 +6,9 @@ import { AdminPaymentActions } from "./AdminPaymentActions";
 import type { PaymentStatus } from "@/components/ui/StatusBadge";
 
 interface Payment {
-  id: string;
+  id: number;
   order_id: string;
+  description?: string | null;
   amount: number;
   currency: string;
   status: PaymentStatus;
@@ -36,6 +37,7 @@ export function AdminPaymentList({ payments }: { payments: Payment[] }) {
           amount={{ value: payment.amount, currency: payment.currency }}
           status={payment.status}
           createdAt={payment.createdAt}
+          description={payment.description}
           buyerEmail={payment.buyer_email ?? undefined}
           sellerEmail={payment.seller_email ?? undefined}
         >

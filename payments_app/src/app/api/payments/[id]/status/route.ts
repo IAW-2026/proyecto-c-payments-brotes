@@ -31,7 +31,7 @@ const EXPIRATION_MINUTES = 1;
 
 async function checkAndExpire(
   payment: {
-    id: string;
+    id: number;
     status: string;
     createdAt: Date;
     order_id: string;

@@ -2,11 +2,12 @@ import { StatusBadge, BadgeStatus } from "@/components/ui/StatusBadge";
 import { formatAmount, formatDate } from "@/lib/format";
 
 interface PaymentCardProps {
-  paymentId: string;
+  paymentId: number;
   orderId: string;
   amount: { value: number; currency: string };
   status: BadgeStatus;
   createdAt: string;
+  description?: string | null;
   buyerEmail?: string;
   sellerEmail?: string;
   onClick?: () => void;
@@ -19,6 +20,7 @@ export function PaymentCard({
   amount,
   status,
   createdAt,
+  description,
   buyerEmail,
   sellerEmail,
   onClick,
@@ -39,7 +41,7 @@ export function PaymentCard({
       <div className="flex items-center justify-between gap-4">
         <div className="flex flex-col gap-1.5 min-w-0">
           <span className="text-sm font-semibold text-verde-profundo truncate">
-            {paymentId}
+            #{paymentId} — {description ? (description.length > 50 ? description.slice(0, 50) + "…" : description) : "Sin descripción"}
           </span>
           <span className="text-xs text-marron-tierra truncate">
             Orden {orderId}

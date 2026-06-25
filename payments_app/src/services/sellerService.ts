@@ -9,7 +9,7 @@ const headers = {
 // POST /api/incoming-payouts
 export async function notifyIncomingPayout(data: {
   payout_id: string;
-  payment_id: string;
+  payment_id: number;
   seller_id: string | number;
   amount: { value: number; currency: string };
   created_at: string;

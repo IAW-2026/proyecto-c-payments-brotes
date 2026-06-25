@@ -7,7 +7,7 @@ import { PayoutStatus } from "@/components/ui/StatusBadge";
 
 interface Payout {
   id: string;
-  payment_id: string;
+  payment_id: number;
   amount: number;
   currency: string;
   status: PayoutStatus;

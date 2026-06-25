@@ -20,7 +20,7 @@ export default async function PaymentDetailPage({
   const { id } = await params;
 
   const payment = await prisma.payment.findUnique({
-    where: { id },
+    where: { id: Number(id) },
   });
 
   // No existe o no pertenece al buyer autenticado

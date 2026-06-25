@@ -68,7 +68,9 @@ export default async function DashboardSearchPage({
             mode: "insensitive" as const,
           },
         },
-        { id: { contains: pCurrentSearch, mode: "insensitive" as const } },
+        ...(isNaN(Number(pCurrentSearch))
+          ? []
+          : [{ id: { equals: Number(pCurrentSearch) } }]),
         {
           buyer_email: {
             contains: pCurrentSearch,
@@ -126,6 +128,7 @@ export default async function DashboardSearchPage({
   const serializedPayments = payments.map((p) => ({
     id: p.id,
     order_id: p.order_id,
+    description: p.description,
     amount: p.amount,
     currency: p.currency,
     status: isPaymentStatus(p.status) ? p.status : ("pending" as const),

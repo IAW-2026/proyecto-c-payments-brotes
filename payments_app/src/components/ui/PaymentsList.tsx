@@ -6,8 +6,9 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { PaymentStatus } from "./StatusBadge";
 
 interface Payment {
-  id: string;
+  id: number;
   order_id: string;
+  description?: string | null;
   amount: number;
   currency: string;
   status: PaymentStatus;
@@ -41,6 +42,7 @@ export function PaymentList({ payments }: PaymentListProps) {
           amount={{ value: payment.amount, currency: payment.currency }}
           status={payment.status}
           createdAt={payment.createdAt}
+          description={payment.description}
           sellerEmail={payment.seller_email ?? undefined}
           onClick={() => router.push(`/payments/${payment.id}`)}
         />

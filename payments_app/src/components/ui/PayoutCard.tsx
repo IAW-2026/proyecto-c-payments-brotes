@@ -3,7 +3,7 @@ import { formatAmount, formatDate } from "@/lib/format";
 
 interface PayoutCardProps {
   payoutId: string;
-  paymentId: string;
+  paymentId: number;
   amount: { value: number; currency: string };
   status: PayoutStatus;
   createdAt: string;

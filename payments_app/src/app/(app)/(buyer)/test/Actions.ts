@@ -1,7 +1,7 @@
 "use server";
 
 export interface PaymentResult {
-  payment_id: string;
+  payment_id: number;
   order_id: string;
   status: string;
   amount: { value: number; currency: string };

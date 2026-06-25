@@ -1,7 +1,7 @@
 "use server";
 
 export async function updatePaymentStatus(
-  paymentId: string,
+  paymentId: number,
   newStatus: "approved" | "rejected",
 ): Promise<{ success: boolean; error?: string }> {
   try {
@@ -28,7 +28,7 @@ export async function updatePaymentStatus(
 }
 
 export async function deletePaymentAction(
-  paymentId: string,
+  paymentId: number,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const res = await fetch(

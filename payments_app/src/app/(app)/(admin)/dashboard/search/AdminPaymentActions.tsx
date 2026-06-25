@@ -5,7 +5,7 @@ import { updatePaymentStatus, deletePaymentAction } from "./actions";
 import { useRouter } from "next/navigation";
 
 interface AdminPaymentActionsProps {
-  paymentId: string;
+  paymentId: number;
   status: string;
 }
 

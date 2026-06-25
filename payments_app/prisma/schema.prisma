@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Payment {
-  id               String   @id @default(cuid())
+  id               Int      @id @default(autoincrement())
   amount           Float
   currency         String   @default("ARS")
   status           String   @default("pending")
@@ -38,7 +38,7 @@ model Payout {
   status       String    @default("pending")
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-  payment_id   String    @unique
+  payment_id   Int       @unique
   seller_id    String //clerk id
   seller_email String?
   buyer_email  String?

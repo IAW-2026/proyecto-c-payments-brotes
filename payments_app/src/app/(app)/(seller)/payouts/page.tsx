@@ -43,7 +43,9 @@ export default async function SellerPayoutsPage({
     }),
     ...(currentSearch && {
       OR: [
-        { payment_id: { contains: currentSearch, mode: "insensitive" as const } },
+        ...(isNaN(Number(currentSearch))
+          ? []
+          : [{ payment_id: { equals: Number(currentSearch) } }]),
         { buyer_email: { contains: currentSearch, mode: "insensitive" as const } },
       ],
     }),

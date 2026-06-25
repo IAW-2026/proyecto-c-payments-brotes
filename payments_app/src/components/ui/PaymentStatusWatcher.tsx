@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 interface PaymentStatusWatcherProps {
-  paymentId: string;
+  paymentId: number;
 }
 
 const TERMINAL_STATUSES = new Set(["approved", "rejected"]);

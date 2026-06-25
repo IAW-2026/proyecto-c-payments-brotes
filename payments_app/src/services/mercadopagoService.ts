@@ -11,7 +11,7 @@ export async function createPreference({
   currency,
   buyerEmail,
 }: {
-  paymentId: string;
+  paymentId: number;
   title: string;
   amount: number;
   currency: string;
@@ -23,7 +23,7 @@ export async function createPreference({
     body: {
       items: [
         {
-          id: paymentId,
+          id: String(paymentId),
           title,
           quantity: 1,
           unit_price: amount,
@@ -40,7 +40,7 @@ export async function createPreference({
       },
       //auto_return: "approved",
       notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/mercadopago`,
-      external_reference: paymentId,
+      external_reference: String(paymentId),
     },
   });
 
