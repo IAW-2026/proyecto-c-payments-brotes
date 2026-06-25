@@ -37,6 +37,34 @@ export async function notifyIncomingPayout(data: {
   return res.json();
 }
 
+// GET /api/sellers/:id — obtiene perfil del vendedor (nombre)
+export async function getSellerName(sellerId: number): Promise<string | null> {
+  console.log("[sellerService][getSellerName] sellerId:", sellerId);
+
+  if (process.env.NODE_ENV === "development") {
+    console.log("[sellerService][getSellerName] modo development, devolviendo mock");
+    return `Vendedor ${sellerId}`;
+  }
+
+  const url = `${SELLER_APP_URL}/api/sellers/${sellerId}`;
+  console.log("[sellerService][getSellerName] GET", url);
+
+  try {
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      console.warn("[sellerService][getSellerName] status:", res.status);
+      return null;
+    }
+    const data = await res.json();
+    const name = data?.name ?? data?.nombre ?? data?.email ?? null;
+    console.log("[sellerService][getSellerName] nombre obtenido:", name);
+    return name;
+  } catch (err) {
+    console.error("[sellerService][getSellerName] error:", err);
+    return null;
+  }
+}
+
 // GET /api/sellers — filtra por id para obtener el email del seller
 export async function getSellerEmail(sellerId: string | number) {
   console.log("[sellerService][getSellerEmail] sellerId:", sellerId);

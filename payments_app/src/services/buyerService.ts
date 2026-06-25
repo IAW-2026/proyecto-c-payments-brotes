@@ -5,6 +5,34 @@ const headers = {
   Authorization: `Bearer ${BUYER_SERVICE_API_KEY}`,
 };
 
+// GET /api/buyers/:id — obtiene perfil del comprador (nombre)
+export async function getBuyerName(buyerId: number): Promise<string | null> {
+  console.log("[buyerService][getBuyerName] buyerId:", buyerId);
+
+  if (process.env.NODE_ENV === "development") {
+    console.log("[buyerService][getBuyerName] modo development, devolviendo mock");
+    return `Comprador ${buyerId}`;
+  }
+
+  const url = `${BUYER_APP_URL}/api/buyers/${buyerId}`;
+  console.log("[buyerService][getBuyerName] GET", url);
+
+  try {
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      console.warn("[buyerService][getBuyerName] status:", res.status);
+      return null;
+    }
+    const data = await res.json();
+    const name = data?.name ?? data?.nombre ?? data?.email ?? null;
+    console.log("[buyerService][getBuyerName] nombre obtenido:", name);
+    return name;
+  } catch (err) {
+    console.error("[buyerService][getBuyerName] error:", err);
+    return null;
+  }
+}
+
 // GET /api/orders/:id
 export async function getOrder(orderId: string) {
   console.log("[buyerService][getOrder] orderId:", orderId);
