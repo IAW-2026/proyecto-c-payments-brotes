@@ -9,6 +9,16 @@ const MONTH_NAMES = [
   "Jul", "Ago", "Sep", "Oct", "Nov", "Dec",
 ];
 
+const PAYMENT_TYPE_LABELS: Record<string, string> = {
+  credit_card: "Tarjeta de crédito",
+  debit_card: "Tarjeta de débito",
+  ticket: "Pago manual / Efectivo",
+  bank_transfer: "Transferencia bancaria",
+  digital_wallet: "Billetera digital",
+  digital_currency: "Criptomoneda",
+  atm: "Cajero automático",
+};
+
 // Mapeo completo de estados de MercadoPago y propios a estados del dashboard
 const STATUS_MAP: Record<string, string> = {
   // Estados de nuestra app
@@ -73,6 +83,7 @@ export async function GET(req: NextRequest) {
       rejectedCountAgg,
       monthlyPayments,
       payments,
+      paymentTypeAgg,
     ] = await Promise.all([
       prisma.payment.aggregate({
         _sum: { amount: true },
@@ -113,7 +124,13 @@ export async function GET(req: NextRequest) {
           seller_email: true,
           buyer_internal_id: true,
           seller_internal_id: true,
+          payment_type: true,
         },
+      }),
+      prisma.payment.groupBy({
+        by: ["payment_type"],
+        _count: { id: true },
+        where: { payment_type: { not: null } },
       }),
     ]);
 
@@ -127,6 +144,15 @@ export async function GET(req: NextRequest) {
       totalCount > 0
         ? Math.round((rejectedCount / totalCount) * 1000) / 10
         : 0;
+
+    const totalMetodos = paymentTypeAgg.reduce((sum, g) => sum + g._count.id, 0);
+    const metodosPago = paymentTypeAgg
+      .map((g) => ({
+        metodo: g.payment_type ?? "no_definido",
+        label: PAYMENT_TYPE_LABELS[g.payment_type ?? ""] ?? g.payment_type ?? "No definido",
+        porcentaje: totalMetodos > 0 ? Math.round((g._count.id / totalMetodos) * 100) : 0,
+      }))
+      .sort((a, b) => b.porcentaje - a.porcentaje);
 
     // ── Ingresos por mes ──────────────────────────────────────────────────────
     const incomesByMonth = new Map<string, number>();
@@ -211,7 +237,7 @@ export async function GET(req: NextRequest) {
           monto: p.amount,
           estado,
           fecha,
-          metodoPago: "MercadoPago",
+          metodoPago: PAYMENT_TYPE_LABELS[p.payment_type ?? ""] ?? p.payment_type ?? "No definido",
         };
       }),
     );
@@ -222,7 +248,7 @@ export async function GET(req: NextRequest) {
       ticketPromedio,
       tasaCancelacion,
       ingresosPendientes,
-      metodosPago: [{ metodo: "MercadoPago", porcentaje: 100 }],
+      metodosPago,
       ultimasTransacciones,
     });
   } catch (error) {
