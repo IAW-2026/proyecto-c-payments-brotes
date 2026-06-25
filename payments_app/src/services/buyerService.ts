@@ -77,7 +77,10 @@ export async function notifyApprovedPayment(data: {
   });
 
   console.log("[buyerService][notifyApprovedPayment] status:", res.status);
-  if (!res.ok) throw new Error("Failed to notify approved payment to Buyer");
+  if (!res.ok) {
+    console.warn("[buyerService][notifyApprovedPayment] responded with", res.status, "- continuando sin notificar");
+    return { acknowledged: false, status: res.status };
+  }
 
   const responseData = await res.json();
   console.log(
@@ -120,7 +123,10 @@ export async function notifyRejectedPayment(data: {
   });
 
   console.log("[buyerService][notifyRejectedPayment] status:", res.status);
-  if (!res.ok) throw new Error("Failed to notify rejected payment to Buyer");
+  if (!res.ok) {
+    console.warn("[buyerService][notifyRejectedPayment] responded with", res.status, "- continuando sin notificar");
+    return { acknowledged: false, status: res.status };
+  }
 
   const responseData = await res.json();
   console.log(

@@ -29,7 +29,11 @@ export async function notifyIncomingPayout(data: {
     body: JSON.stringify(data),
   });
 
-  if (!res.ok) throw new Error("Failed to notify incoming payout to Seller");
+  console.log("[sellerService][notifyIncomingPayout] status:", res.status);
+  if (!res.ok) {
+    console.warn("[sellerService][notifyIncomingPayout] responded with", res.status, "- continuando sin notificar");
+    return { acknowledged: false, status: res.status };
+  }
   return res.json();
 }
 
@@ -117,8 +121,10 @@ export async function notifyStockReservationConfirmed(
     "[sellerService][notifyStockReservationConfirmed] status:",
     res.status,
   );
-  if (!res.ok)
-    throw new Error("Failed to notify stock reservation confirmed to Seller");
+  if (!res.ok) {
+    console.warn("[sellerService][notifyStockReservationConfirmed] responded with", res.status, "- continuando sin notificar");
+    return { acknowledged: false, status: res.status };
+  }
 
   const data = await res.json();
   console.log(
@@ -145,11 +151,18 @@ export async function notifyStockReservationRejected(
 
   const url = `${SELLER_APP_URL}/api/stock-reservations/${buyerOrderId}/reject`;
 
+  const payload = {
+    buyer_order_id: buyerOrderId ? String(buyerOrderId) : undefined,
+    rejected_at: new Date().toISOString(),
+  };
+
   console.log("[sellerService][notifyStockReservationRejected] POST", url);
+  console.log("[sellerService][notifyStockReservationRejected] payload:", JSON.stringify(payload));
 
   const res = await fetch(url, {
     method: "POST",
     headers,
+    body: JSON.stringify(payload),
   });
 
   console.log(
@@ -157,8 +170,10 @@ export async function notifyStockReservationRejected(
     res.status,
   );
 
-  if (!res.ok)
-    throw new Error("Failed to notify stock reservation rejected to Seller");
+  if (!res.ok) {
+    console.warn("[sellerService][notifyStockReservationRejected] responded with", res.status, "- continuando sin notificar");
+    return { acknowledged: false, status: res.status };
+  }
 
   const data = await res.json();
 
