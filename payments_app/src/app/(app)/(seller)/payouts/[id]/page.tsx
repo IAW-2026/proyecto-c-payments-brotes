@@ -16,7 +16,7 @@ export default async function PayoutDetailPage({
   const { id } = await params;
 
   const payout = await prisma.payout.findUnique({
-    where: { id },
+    where: { id: Number(id) },
     include: { payment: true },
   });
 

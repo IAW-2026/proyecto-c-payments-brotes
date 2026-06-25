@@ -52,7 +52,7 @@ export async function deletePaymentAction(
 }
 
 export async function updatePayoutStatus(
-  payoutId: string,
+  payoutId: number,
   newStatus: "paid",
 ): Promise<{ success: boolean; error?: string }> {
   try {
@@ -79,7 +79,7 @@ export async function updatePayoutStatus(
 }
 
 export async function deletePayoutAction(
-  payoutId: string,
+  payoutId: number,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const res = await fetch(

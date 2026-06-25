@@ -32,7 +32,7 @@ model Payment {
 }
 
 model Payout {
-  id           String    @id @default(cuid())
+  id           Int       @id @default(autoincrement())
   amount       Float
   currency     String    @default("ARS")
   status       String    @default("pending")

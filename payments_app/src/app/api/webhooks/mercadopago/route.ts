@@ -71,7 +71,7 @@ async function firePaymentNotifications(
     createdAt: Date;
   },
   payout?: {
-    id: string;
+    id: number;
     payment_id: number;
     seller_id: string;
     seller_internal_id: number | null;

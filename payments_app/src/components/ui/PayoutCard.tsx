@@ -2,7 +2,7 @@ import { StatusBadge, PayoutStatus } from "@/components/ui/StatusBadge";
 import { formatAmount, formatDate } from "@/lib/format";
 
 interface PayoutCardProps {
-  payoutId: string;
+  payoutId: number;
   paymentId: number;
   amount: { value: number; currency: string };
   status: PayoutStatus;
@@ -39,10 +39,7 @@ export function PayoutCard({
       <div className="flex items-center justify-between gap-4">
         <div className="flex flex-col gap-1.5 min-w-0">
           <span className="text-sm font-semibold text-verde-profundo truncate">
-            {payoutId}
-          </span>
-          <span className="text-xs text-marron-tierra truncate">
-            Pago {paymentId}
+            #{payoutId} — Pago #{paymentId}
           </span>
           {buyerEmail && (
             <span className="text-xs text-marron-tierra truncate">

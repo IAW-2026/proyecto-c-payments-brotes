@@ -5,7 +5,7 @@ import { updatePayoutStatus, deletePayoutAction } from "./actions";
 import { useRouter } from "next/navigation";
 
 interface AdminPayoutActionsProps {
-  payoutId: string;
+  payoutId: number;
   status: string;
 }
 

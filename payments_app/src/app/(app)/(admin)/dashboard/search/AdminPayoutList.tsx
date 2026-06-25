@@ -6,7 +6,7 @@ import { AdminPayoutActions } from "./AdminPayoutActions";
 import type { PayoutStatus } from "@/components/ui/StatusBadge";
 
 interface Payout {
-  id: string;
+  id: number;
   payment_id: number;
   amount: number;
   currency: string;
