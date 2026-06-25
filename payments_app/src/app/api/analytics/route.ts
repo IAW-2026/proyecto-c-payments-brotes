@@ -9,11 +9,36 @@ const MONTH_NAMES = [
   "Jul", "Ago", "Sep", "Oct", "Nov", "Dec",
 ];
 
+// Mapeo completo de estados de MercadoPago y propios a estados del dashboard
 const STATUS_MAP: Record<string, string> = {
+  // Estados de nuestra app
   pending: "pendiente",
   approved: "confirmada",
   rejected: "caducada",
+
+  // Estados de MercadoPago que pueden persistir en BD
+  in_process: "pendiente",
+  in_mediation: "pendiente",
+  authorized: "pendiente",
+
+  cancelled: "caducada",
+  refunded: "caducada",
+  charged_back: "caducada",
 };
+
+function mapPaymentStatus(rawStatus: string | null | undefined): string {
+  const normalized = (rawStatus ?? "").toLowerCase().trim();
+  const mapped = STATUS_MAP[normalized] ?? "pendiente";
+
+  // Log de diagnóstico si el estado es inesperado
+  if (normalized && !STATUS_MAP[normalized]) {
+    console.error(
+      `[GET /api/analytics] Estado inesperado en BD: "${rawStatus}" → fallback a "pendiente"`,
+    );
+  }
+
+  return mapped;
+}
 
 function getMonthKey(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
@@ -129,7 +154,7 @@ export async function GET(req: NextRequest) {
     // ── Últimas transacciones con nombres ────────────────────────────────────
     const ultimasTransacciones = await Promise.all(
       payments.map(async (p) => {
-        const estado = STATUS_MAP[p.status] ?? p.status;
+        const estado = mapPaymentStatus(p.status);
         const fecha = p.createdAt.toISOString().split("T")[0];
 
         let compradorNombre = p.buyer_email ?? "Comprador";
