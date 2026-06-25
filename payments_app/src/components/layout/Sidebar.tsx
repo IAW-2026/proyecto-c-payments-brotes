@@ -102,6 +102,26 @@ function IconChevronLeft() {
   );
 }
 
+function IconExternalLink() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      <polyline points="15 3 21 3 21 9" />
+      <line x1="10" y1="14" x2="21" y2="3" />
+    </svg>
+  );
+}
+
 function IconChevronRight() {
   return (
     <svg
@@ -128,9 +148,11 @@ interface NavItem {
 
 interface SidebarProps {
   role: string | undefined;
+  buyerAppUrl?: string;
+  sellerAppUrl?: string;
 }
 
-export default function Sidebar({ role }: SidebarProps) {
+export default function Sidebar({ role, buyerAppUrl, sellerAppUrl }: SidebarProps) {
   const pathname = usePathname();
   const { collapsed, toggle } = useSidebar();
 
@@ -218,6 +240,41 @@ export default function Sidebar({ role }: SidebarProps) {
           </Link>
         ))}
       </nav>
+
+      {/* External link a la app correspondiente */}
+      {(() => {
+        const externalUrl =
+          role === "buyer" ? buyerAppUrl
+          : role === "seller" ? sellerAppUrl
+          : null;
+        const externalLabel =
+          role === "buyer" ? "Ir a Buyer App"
+          : role === "seller" ? "Ir a Seller App"
+          : null;
+
+        if (!externalUrl) return null;
+
+        return (
+          <div className="border-t border-verde-bosque p-2">
+            <a
+              href={externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={collapsed ? externalLabel ?? undefined : undefined}
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-verde-brote/70 hover:bg-verde-bosque hover:text-white transition-colors ${
+                collapsed ? "justify-center" : ""
+              }`}
+            >
+              <span className="shrink-0"><IconExternalLink /></span>
+              {!collapsed && (
+                <span className="whitespace-nowrap overflow-hidden text-ellipsis">
+                  {externalLabel}
+                </span>
+              )}
+            </a>
+          </div>
+        );
+      })()}
     </aside>
   );
 }

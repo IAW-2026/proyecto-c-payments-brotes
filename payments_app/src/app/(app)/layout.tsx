@@ -13,10 +13,13 @@ export default async function AppLayout({
   const userRole = sessionClaims?.metadata as string[] | undefined;
   const role = userRole?.[0];
 
+  const buyerAppUrl = process.env.BUYER_APP_URL ?? "";
+  const sellerAppUrl = process.env.SELLER_APP_URL ?? "";
+
   return (
     <SidebarProvider>
       <div className="flex h-screen overflow-hidden">
-        <Sidebar role={role} />
+        <Sidebar role={role} buyerAppUrl={buyerAppUrl} sellerAppUrl={sellerAppUrl} />
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           <UserBar />
           <main className="flex-1 overflow-y-auto">{children}</main>
