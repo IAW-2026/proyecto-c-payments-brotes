@@ -11,8 +11,8 @@ const MONTH_NAMES = [
 
 const STATUS_MAP: Record<string, string> = {
   pending: "pendiente",
-  approved: "confirmado",
-  rejected: "cancelado",
+  approved: "confirmada",
+  rejected: "caducada",
 };
 
 function getMonthKey(date: Date): string {
