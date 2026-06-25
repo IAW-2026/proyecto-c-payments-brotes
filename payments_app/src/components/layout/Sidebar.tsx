@@ -248,8 +248,8 @@ export default function Sidebar({ role, buyerAppUrl, sellerAppUrl }: SidebarProp
           : role === "seller" ? sellerAppUrl
           : null;
         const externalLabel =
-          role === "buyer" ? "Ir a Buyer App"
-          : role === "seller" ? "Ir a Seller App"
+          role === "buyer" ? "Ir a la App de Comprador"
+          : role === "seller" ? "Ir a la App de Vendedor"
           : null;
 
         if (!externalUrl) return null;
@@ -258,10 +258,8 @@ export default function Sidebar({ role, buyerAppUrl, sellerAppUrl }: SidebarProp
           <div className="border-t border-verde-bosque p-2">
             <a
               href={externalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
               title={collapsed ? externalLabel ?? undefined : undefined}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-verde-brote/70 hover:bg-verde-bosque hover:text-white transition-colors ${
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm bg-verde-hoja text-white hover:bg-verde-bosque shadow-sm transition-colors ${
                 collapsed ? "justify-center" : ""
               }`}
             >
