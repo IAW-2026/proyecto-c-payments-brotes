@@ -15,16 +15,18 @@ model Payment {
   description      String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-  order_id         String
-  buyer_id         String
+  order_id         String //order_id from buyersApp
+  buyer_id         String //clerks ids
   seller_id        String
   buyer_email      String?
   mp_init_point    String?
   mp_preference_id String?
   seller_email     String?
 
-  buyer_internal_id  Int?
-  seller_internal_id Int?
+  payment_type     String? //tipo general de pago de MP: credit_card, debit_card, ticket, bank_transfer, etc.
+
+  buyer_internal_id  Int? //id from buyers app
+  seller_internal_id Int? //id from sellers app
 
   payout Payout?
 }
@@ -37,12 +39,12 @@ model Payout {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   payment_id   String    @unique
-  seller_id    String
+  seller_id    String //clerk id
   seller_email String?
   buyer_email  String?
   accreditedAt DateTime?
 
-  seller_internal_id Int?
+  seller_internal_id Int? //id from sellers app
 
   payment Payment @relation(fields: [payment_id], references: [id])
 }

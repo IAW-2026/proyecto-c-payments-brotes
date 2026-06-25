@@ -170,6 +170,7 @@ async function processPayment(paymentId: string) {
 
   const externalReference = mpPayment.external_reference;
   const status = mpPayment.status;
+  const paymentType = mpPayment.payment_type_id;
 
   if (!externalReference) {
     throw new Error("No external reference en el pago " + paymentId);
@@ -200,7 +201,7 @@ async function processPayment(paymentId: string) {
 
   const updatedPayment = await prisma.payment.update({
     where: { id: externalReference },
-    data: { status: newStatus },
+    data: { status: newStatus, payment_type: paymentType },
   });
 
   console.log(
