@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifyServiceApiKey } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
 const STATUS_MAP: Record<string, string> = {
@@ -8,6 +9,8 @@ const STATUS_MAP: Record<string, string> = {
 };
 
 export async function GET(req: NextRequest) {
+  const authError = verifyServiceApiKey(req);
+  if (authError) return authError;
   try {
     const { searchParams } = new URL(req.url);
     const limitParam = searchParams.get("limit");

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifyServiceApiKey } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
 const MONTH_NAMES = [
@@ -10,7 +11,10 @@ function getMonthKey(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 }
 
-export async function GET(_req: NextRequest) {
+export async function GET(req: NextRequest) {
+  const authError = verifyServiceApiKey(req);
+  if (authError) return authError;
+
   try {
     const now = new Date();
     const currentYear = now.getFullYear();

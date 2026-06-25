@@ -25,6 +25,8 @@ const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
 
 const isWebhookRoute = createRouteMatcher(["/api/webhooks(.*)"]);
 
+const isAnalyticsRoute = createRouteMatcher(["/api/analytics(.*)"]);
+
 const isSseRoute = createRouteMatcher(["/api/payments/(.*)/status"]);
 
 const isProtectedRoute = createRouteMatcher([
@@ -51,6 +53,11 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 
   // SSE bypass auth por API key — usa Clerk session en el handler
   if (isSseRoute(req)) {
+    return NextResponse.next();
+  }
+
+  // Analytics bypass Clerk auth — se valida por API key en cada handler
+  if (isAnalyticsRoute(req)) {
     return NextResponse.next();
   }
 
@@ -105,6 +112,8 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 export const config = {
   matcher: [
     "/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)",
-    "/api/(.*)",
+    "/api/payments(.*)",
+    "/api/payouts(.*)",
+    "/api/webhooks(.*)",
   ],
 };
