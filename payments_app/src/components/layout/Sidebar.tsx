@@ -258,6 +258,8 @@ export default function Sidebar({ role, buyerAppUrl, sellerAppUrl }: SidebarProp
           <div className="border-t border-verde-bosque p-2">
             <a
               href={externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               title={collapsed ? externalLabel ?? undefined : undefined}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm bg-verde-hoja text-white hover:bg-verde-bosque shadow-sm transition-colors ${
                 collapsed ? "justify-center" : ""
@@ -273,6 +275,28 @@ export default function Sidebar({ role, buyerAppUrl, sellerAppUrl }: SidebarProp
           </div>
         );
       })()}
+
+      {/* Analytics Dashboard — solo admin */}
+      {role === "admin" && (
+        <div className="border-t border-verde-bosque p-2">
+          <a
+            href="https://etapa-3-analytics-dashboard-brotes.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            title={collapsed ? "Analytics Dashboard" : undefined}
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm bg-verde-hoja text-white hover:bg-verde-bosque shadow-sm transition-colors ${
+              collapsed ? "justify-center" : ""
+            }`}
+          >
+            <span className="shrink-0"><IconExternalLink /></span>
+            {!collapsed && (
+              <span className="whitespace-nowrap overflow-hidden text-ellipsis">
+                Analytics Dashboard
+              </span>
+            )}
+          </a>
+        </div>
+      )}
     </aside>
   );
 }
