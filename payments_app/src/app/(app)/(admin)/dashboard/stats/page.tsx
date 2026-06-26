@@ -108,7 +108,7 @@ export default async function DashboardStatsPage() {
           />
           <StatCard
             label="Por estado"
-            value={`${statusCount(payoutsByStatus, "paid")} acreditados`}
+            value={`${statusCount(payoutsByStatus, "accredited")} acreditados`}
             sub={`${statusCount(payoutsByStatus, "pending")} pendientes`}
           />
         </div>

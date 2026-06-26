@@ -42,6 +42,8 @@ const statusLabels: Record<string, string> = {
   approved: "Aprobados",
   pending: "Pendientes",
   rejected: "Rechazados",
+  cancelled: "Cancelados",
+  accredited: "Acreditados",
   paid: "Acreditados",
 };
 
@@ -52,20 +54,17 @@ export function DashboardCharts({
   approvalRate,
   topSellers,
 }: DashboardChartsProps) {
-  const allStatusData = [
-    ...paymentsByStatus.map((s) => ({
-      name: statusLabels[s.status] ?? s.status,
-      value: s.count,
-      color:
-        CHART_COLORS[s.status as keyof typeof CHART_COLORS] ?? "#a67c52",
-    })),
-    ...payoutsByStatus.map((s) => ({
-      name: statusLabels[s.status] ?? s.status,
-      value: s.count,
-      color:
-        CHART_COLORS[s.status as keyof typeof CHART_COLORS] ?? "#a67c52",
-    })),
-  ];
+  const paymentChartData = paymentsByStatus.map((s) => ({
+    name: statusLabels[s.status] ?? s.status,
+    value: s.count,
+    color: CHART_COLORS[s.status as keyof typeof CHART_COLORS] ?? "#a67c52",
+  }));
+
+  const payoutChartData = payoutsByStatus.map((s) => ({
+    name: statusLabels[s.status] ?? s.status,
+    value: s.count,
+    color: CHART_COLORS[s.status as keyof typeof CHART_COLORS] ?? "#a67c52",
+  }));
 
   const topSellerData = topSellers.map((s) => ({
     name: s.seller_email ?? s.seller_id.slice(0, 8),
@@ -111,12 +110,12 @@ export function DashboardCharts({
 
         <div className="bg-white border border-beige rounded-xl p-5">
           <h3 className="text-sm font-semibold text-verde-profundo uppercase tracking-wide mb-4">
-            Distribución por estado
+            Pagos por estado
           </h3>
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie
-                data={allStatusData}
+                data={paymentChartData}
                 dataKey="value"
                 nameKey="name"
                 cx="50%"
@@ -125,7 +124,7 @@ export function DashboardCharts({
                 innerRadius={50}
                 paddingAngle={3}
               >
-                {allStatusData.map((entry, i) => (
+                {paymentChartData.map((entry, i) => (
                   <Cell key={i} fill={entry.color} />
                 ))}
               </Pie>
@@ -133,7 +132,7 @@ export function DashboardCharts({
             </PieChart>
           </ResponsiveContainer>
           <div className="flex flex-wrap justify-center gap-3 mt-2">
-            {allStatusData.map((entry, i) => (
+            {paymentChartData.map((entry, i) => (
               <div key={`${i}-${entry.name}`} className="flex items-center gap-1.5 text-xs text-marron-tierra">
                 <span
                   className="w-2.5 h-2.5 rounded-full"
@@ -143,6 +142,50 @@ export function DashboardCharts({
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="bg-white border border-beige rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-verde-profundo uppercase tracking-wide mb-4">
+            Acreditaciones por estado
+          </h3>
+          {payoutChartData.length === 0 ? (
+            <p className="text-sm text-marron-tierra text-center py-12">
+              Sin acreditaciones aún
+            </p>
+          ) : (
+            <>
+              <ResponsiveContainer width="100%" height={260}>
+                <PieChart>
+                  <Pie
+                    data={payoutChartData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                    innerRadius={50}
+                    paddingAngle={3}
+                  >
+                    {payoutChartData.map((entry, i) => (
+                      <Cell key={i} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="flex flex-wrap justify-center gap-3 mt-2">
+                {payoutChartData.map((entry, i) => (
+                  <div key={`${i}-${entry.name}`} className="flex items-center gap-1.5 text-xs text-marron-tierra">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full"
+                      style={{ backgroundColor: entry.color }}
+                    />
+                    {entry.name}: {entry.value}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
