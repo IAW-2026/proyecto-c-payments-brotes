@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { createPreference } from "@/services/mercadopagoService";
 import { CreatePaymentSchema } from "@/lib/validator";
 import { getSellerEmail } from "@/services/sellerService";
+import { getOrder } from "@/services/buyerService";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -59,6 +60,29 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    let paymentDescription = payment.description;
+
+    if (!paymentDescription) {
+      try {
+        const order = await getOrder(order_id);
+        if (order?.items?.length) {
+          paymentDescription = order.items
+            .map((i: { product_name: string }) => i.product_name)
+            .join(", ")
+            .slice(0, 255);
+          await prisma.payment.update({
+            where: { id: payment.id },
+            data: { description: paymentDescription },
+          });
+        }
+      } catch (e) {
+        console.warn(
+          "[POST /api/payments] No se pudo obtener descripción desde Buyer App",
+          e,
+        );
+      }
+    }
+
     let mpData = {};
     if (buyer_email) {
       const preference = await createPreference({
@@ -89,7 +113,7 @@ export async function POST(req: NextRequest) {
         order_id: payment.order_id,
         status: payment.status,
         amount: { value: payment.amount, currency: payment.currency },
-        description: payment.description,
+        description: paymentDescription,
         created_at: payment.createdAt,
         ...mpData,
       },
