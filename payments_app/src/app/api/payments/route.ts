@@ -67,7 +67,11 @@ export async function POST(req: NextRequest) {
         const order = await getOrder(order_id);
         if (order?.items?.length) {
           paymentDescription = order.items
-            .map((i: { product_name: string }) => i.product_name)
+            .map((i: { product_name: string; quantity: number }) =>
+              i.quantity > 1
+                ? `${i.product_name} x${i.quantity}`
+                : i.product_name,
+            )
             .join(", ")
             .slice(0, 255);
           await prisma.payment.update({
