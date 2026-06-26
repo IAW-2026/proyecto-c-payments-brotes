@@ -33,15 +33,12 @@ const isProtectedRoute = createRouteMatcher([
   "/payments(.*)",
   "/payouts(.*)",
   "/dashboard(.*)",
-  "/test(.*)",
 ]);
 
 const routeRoleMap = [
   { matcher: createRouteMatcher(["/payments(.*)"]), role: "buyer" },
   { matcher: createRouteMatcher(["/payouts(.*)"]), role: "seller" },
   { matcher: createRouteMatcher(["/dashboard(.*)"]), role: "admin" },
-  //solo para mostrar flujo:
-  { matcher: createRouteMatcher(["/test(.*)"]), role: "buyer" },
 ];
 export default clerkMiddleware(async (auth, req: NextRequest) => {
   const { pathname } = req.nextUrl;
