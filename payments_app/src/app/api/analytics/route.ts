@@ -154,6 +154,21 @@ export async function GET(req: NextRequest) {
       }))
       .sort((a, b) => b.porcentaje - a.porcentaje);
 
+    // ── Regresión lineal ──────────────────────────────────────────────────────
+    function linearRegression(
+      points: { x: number; y: number }[],
+    ): { m: number; b: number } | null {
+      const n = points.length;
+      if (n < 2) return null;
+      const sumX = points.reduce((s, p) => s + p.x, 0);
+      const sumY = points.reduce((s, p) => s + p.y, 0);
+      const sumXY = points.reduce((s, p) => s + p.x * p.y, 0);
+      const sumXX = points.reduce((s, p) => s + p.x * p.x, 0);
+      const m = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+      const b = (sumY - m * sumX) / n;
+      return { m, b };
+    }
+
     // ── Ingresos por mes ──────────────────────────────────────────────────────
     const incomesByMonth = new Map<string, number>();
     for (const p of monthlyPayments) {
@@ -163,15 +178,31 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    const dataPoints = months
+      .map((month, idx) => ({ x: idx, y: incomesByMonth.get(month.key) ?? 0 }))
+      .filter((p) => p.y > 0);
+
+    const reg = dataPoints.length >= 2 ? linearRegression(dataPoints) : null;
+    const allIncomes = Array.from(incomesByMonth.values());
+    const globalAvg =
+      allIncomes.length > 0
+        ? Math.round(allIncomes.reduce((a, b) => a + b, 0) / allIncomes.length)
+        : 0;
+
     const ingresosUltimosMeses = months.map((m, index) => {
       const ingresos = Math.round(incomesByMonth.get(m.key) ?? 0);
 
       let meta = 0;
-      if (index >= 3) {
-        const prevIncomes = [index - 1, index - 2, index - 3].map((idx) =>
-          incomesByMonth.get(months[idx].key) ?? 0,
-        );
-        meta = Math.round((prevIncomes.reduce((a, b) => a + b, 0) / 3) * 1.05);
+
+      if (reg) {
+        const projected = reg.m * index + reg.b;
+        meta = Math.round(Math.max(projected, 0) * 1.05);
+      } else if (dataPoints.length === 1) {
+        meta = Math.round(dataPoints[0].y * 1.05);
+      }
+
+      if (meta === 0 && allIncomes.length > 0) {
+        meta = Math.round(globalAvg * 1.05);
       }
 
       return { mes: m.label, ingresos, meta };

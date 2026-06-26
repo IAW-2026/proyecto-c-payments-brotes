@@ -1,6 +1,13 @@
-import { PrismaClient } from "../src/generated/prisma";
+import { config } from "dotenv";
+config({ path: ".env.local" });
 
-const prisma = new PrismaClient();
+import { PrismaClient } from "../src/generated/prisma";
+import { PrismaNeon } from "@prisma/adapter-neon";
+
+const adapter = new PrismaNeon({
+  connectionString: process.env.DATABASE_URL!,
+});
+const prisma = new PrismaClient({ adapter });
 
 // ─── Generadores de fechas ───────────────────────────────────────────────────
 // Días random pero distribuidos en abril, mayo y junio 2026 (hasta el 25/06)
