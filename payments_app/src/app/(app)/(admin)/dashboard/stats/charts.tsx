@@ -26,6 +26,11 @@ const CHART_COLORS = {
   light: "#cde5c1",
 };
 
+const PAYOUT_COLORS: Record<string, string> = {
+  accredited: "#388e3c",
+  pending: "#f9a825",
+};
+
 interface DashboardChartsProps {
   dailyVolume: { date: string; total: number; count: number }[];
   paymentsByStatus: { status: string; count: number }[];
@@ -63,7 +68,7 @@ export function DashboardCharts({
   const payoutChartData = payoutsByStatus.map((s) => ({
     name: statusLabels[s.status] ?? s.status,
     value: s.count,
-    color: CHART_COLORS[s.status as keyof typeof CHART_COLORS] ?? "#a67c52",
+    color: PAYOUT_COLORS[s.status] ?? "#a67c52",
   }));
 
   const topSellerData = topSellers.map((s) => ({
