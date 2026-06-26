@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createPreference } from "@/services/mercadopagoService";
 import { CreatePaymentSchema } from "@/lib/validator";
-import { getSellerEmail } from "@/services/sellerService";
+import { getSellerEmail, getSellerProduct } from "@/services/sellerService";
 import { getOrder } from "@/services/buyerService";
 export async function POST(req: NextRequest) {
   try {
@@ -66,14 +66,38 @@ export async function POST(req: NextRequest) {
       try {
         const order = await getOrder(order_id);
         if (order?.items?.length) {
-          paymentDescription = order.items
-            .map((i: { product_name: string; quantity: number }) =>
-              i.quantity > 1
-                ? `${i.product_name} x${i.quantity}`
-                : i.product_name,
+          const sellerNumericId = Number(order.seller_id);
+
+          type OrderItem = {
+            product_id: number | string;
+            product_name: string;
+            quantity: number;
+          };
+
+          const enrichedItems = await Promise.all(
+            order.items.map(async (item: OrderItem) => {
+              if (!isNaN(sellerNumericId)) {
+                try {
+                  const product = await getSellerProduct(
+                    sellerNumericId,
+                    Number(item.product_id),
+                  );
+                  if (product?.name) {
+                    return { name: product.name, quantity: item.quantity };
+                  }
+                } catch {}
+              }
+              return { name: item.product_name, quantity: item.quantity };
+            }),
+          );
+
+          paymentDescription = enrichedItems
+            .map((i) =>
+              i.quantity > 1 ? `${i.name} x${i.quantity}` : i.name,
             )
             .join(", ")
             .slice(0, 255);
+
           await prisma.payment.update({
             where: { id: payment.id },
             data: { description: paymentDescription },

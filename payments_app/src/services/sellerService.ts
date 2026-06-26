@@ -111,6 +111,42 @@ export async function getSellerEmail(sellerId: string | number) {
   return email;
 }
 
+// GET /api/sellers/:seller_id/products/:id
+export async function getSellerProduct(
+  sellerId: number,
+  productId: number,
+): Promise<{ name: string } | null> {
+  console.log(
+    "[sellerService][getSellerProduct] sellerId:",
+    sellerId,
+    "productId:",
+    productId,
+  );
+
+  if (process.env.NODE_ENV === "development") {
+    console.log(
+      "[sellerService][getSellerProduct] modo development, devolviendo mock",
+    );
+    return { name: `Producto ${productId}` };
+  }
+
+  const url = `${SELLER_APP_URL}/api/sellers/${sellerId}/products/${productId}`;
+  console.log("[sellerService][getSellerProduct] GET", url);
+
+  try {
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      console.warn("[sellerService][getSellerProduct] status:", res.status);
+      return null;
+    }
+    const data = await res.json();
+    return { name: data.name };
+  } catch (err) {
+    console.error("[sellerService][getSellerProduct] error:", err);
+    return null;
+  }
+}
+
 // POST /api/stock-reservations/:orderId/confirm
 export async function notifyStockReservationConfirmed(
   buyerOrderId?: string | number,
