@@ -9,6 +9,7 @@ import {
   notifyIncomingPayout,
   notifyStockReservationConfirmed,
   notifyStockReservationRejected,
+  getSellerByInternalId,
 } from "@/services/sellerService";
 
 async function parseId(params: Promise<{ id: string }>) {
@@ -107,18 +108,39 @@ export async function PATCH(
       data: { status: newStatus },
     });
 
+    let resolvedSellerId = updated.seller_id;
+
+    if (newStatus === "approved" && updated.seller_internal_id) {
+      try {
+        const seller = await getSellerByInternalId(updated.seller_internal_id);
+        if (seller) {
+          await prisma.payment.update({
+            where: { id: updated.id },
+            data: { seller_id: seller.clerk_id },
+          });
+          resolvedSellerId = seller.clerk_id;
+          console.log("[PATCH /api/payments/:id] seller_id actualizado a clerkId:", seller.clerk_id);
+        } else {
+          console.error("[PATCH /api/payments/:id] No se pudo resolver clerkId para seller_internal_id:", updated.seller_internal_id);
+        }
+      } catch (e) {
+        console.error("[PATCH /api/payments/:id] Error resolviendo clerkId:", e);
+      }
+    }
+
     let payout = null;
 
     if (newStatus === "approved") {
       payout = await prisma.payout.create({
         data: {
           payment_id: updated.id,
-          seller_id: updated.seller_id,
+          seller_id: resolvedSellerId,
           seller_email: updated.seller_email ?? null,
           buyer_email: updated.buyer_email ?? null,
           amount: updated.amount,
           currency: updated.currency,
           status: "paid",
+          seller_internal_id: updated.seller_internal_id,
         },
       });
     }

@@ -111,6 +111,56 @@ export async function getSellerEmail(sellerId: string | number) {
   return email;
 }
 
+// GET /api/sellers/:internalId — obtiene un seller por su id interno
+export async function getSellerByInternalId(internalId: number): Promise<{
+  id: number;
+  name: string;
+  email: string;
+  clerk_id: string;
+} | null> {
+  console.log("[sellerService][getSellerByInternalId] internalId:", internalId);
+
+  if (process.env.NODE_ENV === "development") {
+    console.log("[sellerService][getSellerByInternalId] modo development, devolviendo mock");
+    return {
+      id: internalId,
+      name: `Vendedor ${internalId}`,
+      email: `seller+${internalId}@example.com`,
+      clerk_id: `user_seller_${internalId}`,
+    };
+  }
+
+  const url = `${SELLER_APP_URL}/api/sellers`;
+  console.log("[sellerService][getSellerByInternalId] GET", url);
+
+  const res = await fetch(url, { headers });
+
+  console.log("[sellerService][getSellerByInternalId] status:", res.status);
+
+  if (!res.ok) {
+    console.error("[sellerService][getSellerByInternalId] error al obtener sellers");
+    return null;
+  }
+
+  const { sellers }: {
+    sellers: { id: number; name: string; email: string; clerk_id: string }[];
+  } = await res.json();
+
+  console.log(
+    "[sellerService][getSellerByInternalId] sellers recibidos:",
+    sellers.length,
+  );
+
+  const seller = sellers.find((s) => s.id === internalId);
+
+  console.log(
+    "[sellerService][getSellerByInternalId] seller encontrado:",
+    seller ? JSON.stringify(seller) : "null",
+  );
+
+  return seller ?? null;
+}
+
 // GET /api/sellers/:seller_id/products/:id
 export async function getSellerProduct(
   sellerId: number,

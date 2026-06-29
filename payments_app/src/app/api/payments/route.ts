@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
       data: {
         order_id,
         buyer_id,
-        seller_id,
+        seller_id: String(seller_id),
         amount,
         currency,
         status: "pending",
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
         buyer_email: buyer_email || null,
         seller_email: sellerEmail,
         buyer_internal_id: buyer_internal_id ?? null,
-        seller_internal_id: seller_internal_id ?? null,
+        seller_internal_id: seller_internal_id ?? Number(seller_id),
       },
     });
 

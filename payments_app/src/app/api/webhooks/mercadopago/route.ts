@@ -10,6 +10,7 @@ import {
   notifyIncomingPayout,
   notifyStockReservationConfirmed,
   notifyStockReservationRejected,
+  getSellerByInternalId,
 } from "@/services/sellerService";
 
 function verifyMPSignature(req: NextRequest): boolean {
@@ -211,18 +212,39 @@ async function processPayment(paymentId: string) {
     updatedPayment.status,
   );
 
+  let resolvedSellerId = updatedPayment.seller_id;
+
+  if (updatedPayment.seller_internal_id) {
+    try {
+      const seller = await getSellerByInternalId(updatedPayment.seller_internal_id);
+      if (seller) {
+        await prisma.payment.update({
+          where: { id: updatedPayment.id },
+          data: { seller_id: seller.clerk_id },
+        });
+        resolvedSellerId = seller.clerk_id;
+        console.log("[MP Webhook] seller_id actualizado a clerkId:", seller.clerk_id);
+      } else {
+        console.error("[MP Webhook] No se pudo resolver clerkId para seller_internal_id:", updatedPayment.seller_internal_id);
+      }
+    } catch (e) {
+      console.error("[MP Webhook] Error resolviendo clerkId:", e);
+    }
+  }
+
   let payout = null;
 
   if (newStatus === "approved") {
     payout = await prisma.payout.create({
       data: {
         payment_id: updatedPayment.id,
-        seller_id: updatedPayment.seller_id,
+        seller_id: resolvedSellerId,
         seller_email: updatedPayment.seller_email ?? null,
         buyer_email: updatedPayment.buyer_email ?? null,
         amount: updatedPayment.amount,
         currency: updatedPayment.currency,
         status: "paid",
+        seller_internal_id: updatedPayment.seller_internal_id,
       },
     });
   }
