@@ -1,0 +1,6 @@
+.vercel
+.env*.local
+AGENTS.md
+revision.md
+revision02.md
+migration.sql

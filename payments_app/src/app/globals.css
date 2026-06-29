@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --font-sans: var(--font-geist-sans);
+    --font-mono: var(--font-geist-mono);
+
+    --color-verde-bosque: #4c6b3d;
+    --color-verde-hoja: #7ba05d;
+    --color-verde-brote: #cde5c1;
+    --color-verde-suave: #eaf3e6;
+    --color-verde-profundo: #243b27;
+    --color-arena: #f5f2ea;
+    --color-beige: #e8e2d6;
+    --color-gris-piedra: #d9d9d4;
+    --color-marron-tierra: #a67c52;
+    --color-terracota: #e07a5f;
+    --color-terracota-oscuro: #b84636;
+    --color-verde-oscuro: #1a2c1d;
+}
+
+:root {
+    --background: #f5f2ea;
+    --foreground: #243b27;
+}
+
+body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+@keyframes pulse-subtle {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.85;
+    }
+}
+
+.animate-pulse-subtle {
+    animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

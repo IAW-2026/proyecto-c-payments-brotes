@@ -1,0 +1,6 @@
+name: Production
+values:
+  - key: baseUrl
+    value: 'https://brotes.vercel.app'
+    enabled: true
+    type: default

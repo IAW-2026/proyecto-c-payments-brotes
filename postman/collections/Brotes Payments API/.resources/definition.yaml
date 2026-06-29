@@ -1,0 +1,16 @@
+$kind: collection
+name: Brotes Payments API
+variables:
+  order_id: order-001
+  buyer_id: buyer-001
+  seller_id: seller-001
+  payment_id: ""
+auth:
+  - id: 8248c099-d20b-4293-be5c-6d32ffa39c24
+    type: apikey
+    name: API Key
+    credentials:
+      key: Authorization
+      value: Bearer payments_secret_key_555222333
+    rules:
+      url: https://proyecto-c-payments-brotes.vercel.app

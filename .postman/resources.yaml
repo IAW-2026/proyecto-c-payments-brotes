@@ -1,0 +1,7 @@
+# Use this workspace to collaborate
+workspace:
+  id: 53aa83ea-8344-4a0a-8e8e-521108ed41b6
+
+localResources:
+  docs:
+    - ../payments_app/README.md

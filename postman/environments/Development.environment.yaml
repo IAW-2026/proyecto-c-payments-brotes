@@ -1,0 +1,9 @@
+name: Development
+values:
+  - key: baseUrl
+    value: "https://proyecto-c-payments-brotes.vercel.app"
+    enabled: true
+    type: default
+    buyer_id: user_3Dv1ps1sKzwvsFhcto5WdgOgBMb
+    seller_id: user_3E1w6lYJ5OVh0A9PCa33alsZcSG
+    order_id: order_test_001

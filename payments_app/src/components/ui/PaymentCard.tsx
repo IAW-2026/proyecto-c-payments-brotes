@@ -1,0 +1,74 @@
+import { StatusBadge, BadgeStatus } from "@/components/ui/StatusBadge";
+import { formatAmount, formatDate } from "@/lib/format";
+
+interface PaymentCardProps {
+  paymentId: number;
+  orderId: string;
+  amount: { value: number; currency: string };
+  status: BadgeStatus;
+  createdAt: string;
+  description?: string | null;
+  buyerEmail?: string;
+  sellerEmail?: string;
+  onClick?: () => void;
+  children?: React.ReactNode;
+}
+
+export function PaymentCard({
+  paymentId,
+  orderId,
+  amount,
+  status,
+  createdAt,
+  description,
+  buyerEmail,
+  sellerEmail,
+  onClick,
+  children,
+}: PaymentCardProps) {
+  return (
+    <div
+      onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } } : undefined}
+      className={`
+        bg-white border border-beige rounded-xl px-5 py-4
+        transition-shadow duration-150
+        ${onClick ? "cursor-pointer hover:shadow-md hover:border-gris-piedra" : ""}
+      `}
+    >
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col gap-1.5 min-w-0">
+          <span className="text-sm font-semibold text-verde-profundo truncate">
+            #{paymentId} — {description ? (description.length > 50 ? description.slice(0, 50) + "…" : description) : "Sin descripción"}
+          </span>
+          <span className="text-xs text-marron-tierra truncate">
+            Orden {orderId}
+          </span>
+          {buyerEmail && (
+            <span className="text-xs text-marron-tierra truncate">
+              Comprador: {buyerEmail}
+            </span>
+          )}
+          {sellerEmail && (
+            <span className="text-xs text-marron-tierra truncate">
+              {sellerEmail}
+            </span>
+          )}
+          <span className="text-xs text-gris-piedra">
+            {formatDate(createdAt)}
+          </span>
+        </div>
+
+        <div className="flex flex-col items-end gap-2 shrink-0">
+          <span className="text-base font-semibold text-verde-profundo">
+            {formatAmount(amount.value, amount.currency)}
+          </span>
+          <StatusBadge status={status} />
+        </div>
+      </div>
+      {children}
+    </div>
+  );
+}

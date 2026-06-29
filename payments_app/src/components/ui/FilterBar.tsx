@@ -1,0 +1,239 @@
+"use client";
+
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useCallback, useState, useEffect, useRef } from "react";
+
+export type FilterStatusOption =
+  | "all"
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "paid";
+export type FilterSortOption = "createdAt" | "amount";
+export type FilterOrderOption = "asc" | "desc";
+
+export interface FilterBarProps {
+  statusOptions: { value: FilterStatusOption; label: string }[];
+  currentStatus: FilterStatusOption;
+  currentSort: FilterSortOption;
+  currentOrder: FilterOrderOption;
+  searchPlaceholder?: string;
+  currentSearch?: string;
+  currentDay?: string;
+  currentMonth?: string;
+  paramPrefix?: string;
+}
+
+const DEBOUNCE_MS = 350;
+
+export function FilterBar({
+  statusOptions,
+  currentStatus,
+  currentSort,
+  currentOrder,
+  searchPlaceholder = "Buscar...",
+  currentSearch = "",
+  currentDay = "",
+  currentMonth = "",
+  paramPrefix = "",
+}: FilterBarProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const [searchInput, setSearchInput] = useState(currentSearch);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Sincronizar si el Server Component resetea currentSearch (limpiar filtros)
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSearchInput(currentSearch);
+  }, [currentSearch]);
+
+  const p = paramPrefix;
+
+  const updateParam = useCallback(
+    (key: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value) {
+        params.set(`${p}${key}`, value);
+      } else {
+        params.delete(`${p}${key}`);
+      }
+      params.delete("page");
+      params.delete("paymentspage");
+      params.delete("payoutspage");
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [router, pathname, searchParams, p],
+  );
+
+  // Búsqueda con debounce — navega 350ms después de que el usuario deja de escribir
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      setSearchInput(value);
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        updateParam("search", value.trim());
+      }, DEBOUNCE_MS);
+    },
+    [updateParam],
+  );
+
+  // Limpiar timeout al desmontar
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  const updateDay = useCallback(
+    (value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value) {
+        params.set(`${p}day`, value);
+      } else {
+        params.delete(`${p}day`);
+      }
+      params.delete(`${p}month`);
+      params.delete("page");
+      params.delete("paymentspage");
+      params.delete("payoutspage");
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [router, pathname, searchParams, p],
+  );
+
+  const updateMonth = useCallback(
+    (value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value) {
+        params.set(`${p}month`, value);
+      } else {
+        params.delete(`${p}month`);
+      }
+      params.delete(`${p}day`);
+      params.delete("page");
+      params.delete("paymentspage");
+      params.delete("payoutspage");
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [router, pathname, searchParams, p],
+  );
+
+  const hasActiveFilters =
+    currentStatus !== "all" ||
+    currentSort !== "createdAt" ||
+    currentOrder !== "desc" ||
+    !!currentSearch ||
+    !!currentDay ||
+    !!currentMonth;
+
+  return (
+    <div className="flex flex-col gap-3">
+      {/* Búsqueda con debounce */}
+      <input
+        type="text"
+        value={searchInput}
+        placeholder={searchPlaceholder}
+        aria-label={searchPlaceholder}
+        onChange={(e) => handleSearchChange(e.target.value)}
+        className="w-full text-sm rounded-lg border border-beige bg-white text-verde-profundo px-3 py-1.5 placeholder:text-marron-tierra/50 focus:outline-none focus:ring-2 focus:ring-verde-hoja"
+      />
+      {/* Filtros de select + fechas */}
+      <div className="flex flex-wrap items-center gap-2">
+        {/* Estado */}
+        <div className="flex items-center gap-1.5">
+          <label htmlFor={`fb-status${p}`} className="text-xs font-medium text-verde-profundo whitespace-nowrap">
+            Estado
+          </label>
+          <select
+            id={`fb-status${p}`}
+            value={currentStatus}
+            onChange={(e) => updateParam("status", e.target.value)}
+            className="text-sm rounded-lg border border-beige bg-white text-verde-profundo px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-verde-hoja cursor-pointer"
+          >
+            {statusOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Ordenar por */}
+        <div className="flex items-center gap-1.5">
+          <label htmlFor={`fb-sort${p}`} className="text-xs font-medium text-verde-profundo whitespace-nowrap">
+            Ordenar por
+          </label>
+          <select
+            id={`fb-sort${p}`}
+            value={currentSort}
+            onChange={(e) => updateParam("sort", e.target.value)}
+            className="text-sm rounded-lg border border-beige bg-white text-verde-profundo px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-verde-hoja cursor-pointer"
+          >
+            <option value="createdAt">Fecha</option>
+            <option value="amount">Monto</option>
+          </select>
+        </div>
+
+        {/* Ord. */}
+        <div className="flex items-center gap-1.5">
+          <label htmlFor={`fb-order${p}`} className="text-xs font-medium text-verde-profundo whitespace-nowrap">
+            Ord.
+          </label>
+          <select
+            id={`fb-order${p}`}
+            value={currentOrder}
+            onChange={(e) => updateParam("order", e.target.value)}
+            className="text-sm rounded-lg border border-beige bg-white text-verde-profundo px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-verde-hoja cursor-pointer"
+          >
+            <option value="desc">Mayor / Más reciente</option>
+            <option value="asc">Menor / Más antiguo</option>
+          </select>
+        </div>
+
+        {/* Día exacto */}
+        <div className="flex items-center gap-1.5">
+          <label htmlFor={`fb-day${p}`} className="text-xs font-medium text-verde-profundo whitespace-nowrap">
+            Día
+          </label>
+          <input
+            id={`fb-day${p}`}
+            type="date"
+            value={currentDay}
+            onChange={(e) => updateDay(e.target.value)}
+            className="text-sm rounded-lg border border-beige bg-white text-verde-profundo px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-verde-hoja cursor-pointer"
+          />
+        </div>
+
+        {/* Mes exacto */}
+        <div className="flex items-center gap-1.5">
+          <label htmlFor={`fb-month${p}`} className="text-xs font-medium text-verde-profundo whitespace-nowrap">
+            Mes
+          </label>
+          <input
+            id={`fb-month${p}`}
+            type="month"
+            value={currentMonth}
+            onChange={(e) => updateMonth(e.target.value)}
+            className="text-sm rounded-lg border border-beige bg-white text-verde-profundo px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-verde-hoja cursor-pointer"
+          />
+        </div>
+
+        {/* Limpiar */}
+        {hasActiveFilters && (
+          <button
+            onClick={() => {
+              if (debounceRef.current) clearTimeout(debounceRef.current);
+              setSearchInput("");
+              router.replace(pathname, { scroll: false });
+            }}
+            className="text-xs text-marron-tierra underline underline-offset-2 hover:text-verde-profundo transition-colors ml-1"
+          >
+            Limpiar filtros
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}

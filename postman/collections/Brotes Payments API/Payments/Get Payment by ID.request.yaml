@@ -1,0 +1,23 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/payments/{{payment_id}}'
+order: 2000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+        pm.response.to.have.status(200);
+      });
+      pm.test("Response has payment_id", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property("payment_id");
+      });
+      pm.test("Payment has correct fields", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property("order_id");
+        pm.expect(json).to.have.property("buyer_id");
+        pm.expect(json).to.have.property("seller_id");
+        pm.expect(json).to.have.property("status");
+        pm.expect(json).to.have.property("amount");
+      });
